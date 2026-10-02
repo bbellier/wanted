@@ -1,0 +1,408 @@
+<!-- ======================================================================================================== -->
+
+
+<!DOCTYPE html>
+
+
+<!-- ========================================================================================================== -->
+
+
+<html lang="fr">
+
+
+<!-- ========================================================================================================== -->
+
+
+<!-- En-tête de la page -->
+<head>
+
+  <!-- Encodage, largeur adaptée à l'écran et titre de l'onglet du navigateur -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WANTED - OP TCG</title>
+  
+  <!-- Icône de l'onglet du navigateur (favicon) -->
+  <link rel="icon" type="image/x-icon" href="www/wanted_icon.ico">
+
+  <!-- Polices (Barlow pour le texte, Rye pour le titre) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Rye&display=swap" rel="stylesheet">
+
+  <!-- Styles du site -->
+  <link rel="stylesheet" href="style.css">
+
+</head>
+<!-- Fin de l'en-tête de la page -->
+
+
+<!-- ========================================================================================================== -->
+
+
+<!-- Corps de la page -->
+<body>
+
+
+  <!-- ======================================================================================================== -->
+
+
+  <!-- Icônes du site, dessinées une seule fois et réutilisées partout avec <use href="#icone-..."> -->
+  <svg class="sprite-icones" aria-hidden="true">
+    <symbol id="icone-carte" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><circle cx="12" cy="12" r="2.5"/></symbol>
+    <symbol id="icone-caddie" viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 11.4a1.5 1.5 0 0 0 1.5 1.1h8.6a1.5 1.5 0 0 0 1.5-1.1L21 7H6"/></symbol>
+    <symbol id="icone-barre" viewBox="0 0 24 24"><line x1="3" y1="21" x2="21" y2="3"/></symbol>
+    <symbol id="icone-crayon" viewBox="0 0 24 24"><path d="M17 3l4 4L8 20H4v-4L17 3z"/><path d="M14 6l4 4"/></symbol>
+    <symbol id="icone-drapeau" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h13l-3 4.5 3 4.5H5"/></symbol>
+    <symbol id="icone-loupe" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16" y2="16"/></symbol>
+    <symbol id="icone-fleche" viewBox="0 0 24 24"><line x1="4" y1="12" x2="19" y2="12"/><path d="M13 6l6 6-6 6"/></symbol>
+  </svg>
+
+
+  <!-- ======================================================================================================== -->
+
+
+  <!-- Écran de connexion -->
+  <section id="ecran-connexion">
+
+    <form id="formulaire-connexion" class="affiche">
+
+      <!-- Titre et texte d'accueil -->
+      <h1 class="titre">WANTED</h1>
+      <p class="sous-titre">
+        <b>Ton coffre au trésor… enfin... ton gestionnaire de collection de cartes One Piece...</b>
+        <br><br>
+        Halte moussaillon ! Même Luffy présente son chapeau de paille à l'entrée... Connecte-toi pour voir ta collection !
+      </p>
+
+      <!-- Champs email et mot de passe -->
+      <label>Email <input type="email" id="email" autocomplete="email" required></label>
+      <label>Mot de passe
+        <span class="champ-mot-de-passe">
+          <input type="password" id="mot-de-passe" autocomplete="current-password" required>
+          <button type="button" id="bouton-voir-mot-de-passe">Voir/Cacher</button>
+        </span>
+      </label>
+
+      <!-- Bouton de connexion et zone de message -->
+      <button type="submit" class="bouton-principal">Se connecter</button>
+      <p id="message-connexion" class="message"></p>
+
+    </form>
+
+  </section>
+  <!-- Fin de l'écran de connexion -->
+
+
+  <!-- ======================================================================================================== -->
+
+
+  <!-- Écran de l'application -->
+  <section id="ecran-application" hidden>
+
+
+    <!-- ====================================================================================================== -->
+
+
+    <!-- En-tête : titre, onglets, date de mise à jour, email et déconnexion -->
+    <header class="en-tete">
+
+      <!-- Logo à gauche du titre et de la devise (cliquable : ouvre l'avis de recherche) -->
+      <button type="button" id="bouton-logo" class="bouton-logo" title="Mon avis de recherche"><img class="logo" src="www/wanted_icon.ico" alt="Mon avis de recherche"></button>
+
+      <div class="en-tete-titre">
+        <h1 class="titre">WANTED</h1>
+        <p class="devise">Toutes les cartes de Grand Line forment ton One Piece...</p>
+      </div>
+
+      <nav class="onglets">
+        <button type="button" class="onglet actif" data-onglet="onglet-cartes">Cartes</button>
+        <button type="button" class="onglet" data-onglet="onglet-series">Séries</button>
+        <button type="button" class="onglet" data-onglet="onglet-apropos">À propos</button>
+      </nav>
+
+      <div class="en-tete-utilisateur">
+        <span id="maj"></span>
+        <span id="utilisateur-email"></span>
+        <button type="button" id="bouton-deconnexion">Se déconnecter</button>
+      </div>
+
+    </header>
+    <!-- Fin de l'en-tête -->
+
+
+    <!-- ====================================================================================================== -->
+
+
+    <!-- Onglet « Cartes » : barre latérale à gauche, classeur à droite -->
+    <div id="onglet-cartes" class="mise-en-page onglet-contenu">
+
+
+      <!-- Barre latérale : progression, recherche et filtres (options remplies par app.js) -->
+      <aside class="barre-outils">
+
+        <!-- Prime de collection : montant et prime équivalente d'un personnage (remplis par app.js) -->
+        <div class="prime">
+          <span class="prime-titre">▶ PRIME</span>
+          <span id="progression"></span>
+          <span id="prime-montant" class="prime-montant"></span>
+          <span id="prime-equivalente" class="prime-equivalente"></span>
+        </div>
+
+        <label>Recherche <input type="search" id="recherche"></label>
+
+        <details class="filtre" id="filtre-serie"><summary>Série <span class="filtre-resume">Toutes</span></summary><div class="filtre-options"></div></details>
+        <details class="filtre" id="filtre-categorie"><summary>Catégorie <span class="filtre-resume">Toutes</span></summary><div class="filtre-options"></div></details>
+        <details class="filtre" id="filtre-rarete"><summary>Rareté <span class="filtre-resume">Toutes</span></summary><div class="filtre-options"></div></details>
+        <details class="filtre" id="filtre-version"><summary>Version <span class="filtre-resume">Toutes</span></summary><div class="filtre-options"></div></details>
+        <details class="filtre" id="filtre-couleur"><summary>Couleur <span class="filtre-resume">Toutes</span></summary><div class="filtre-options"></div></details>
+
+        <button type="button" id="bouton-reinitialiser" class="bouton-reinitialiser">Réinitialiser les filtres</button>
+
+      </aside>
+      <!-- Fin de la barre latérale -->
+
+
+      <!-- Contenu principal -->
+      <div class="contenu">
+
+
+        <!-- Barre au-dessus du classeur : tri et icônes à gauche, pagination à droite -->
+        <div class="barre-tri">
+
+            <div class="barre-tri-gauche">
+
+            <!-- Lien vers le site officiel (logo cliquable), à gauche du tri -->
+            <a class="lien-logo" href="https://en.onepiece-cardgame.com/" target="_blank" rel="noopener" title="Site officiel One Piece TCG"><img src="https://static.wikia.nocookie.net/onepiece/images/8/80/One_Piece_Card_Game_Logo.png/revision/latest?cb=20220317022331" alt="One Piece TCG"></a>
+
+            <!-- Tri (« |desc » = ordre inverse) -->
+            <select id="choix-tri" aria-label="Tri">
+              <option value="serie_id">Série (pertinence)</option>
+              <option value="carte_id_long">Numéro</option>
+              <option value="carte_nom">Nom</option>
+              <option value="serie_date_sortie|desc">Série (récente → ancienne)</option>
+              <option value="serie_date_sortie">Série (ancienne → récente)</option>
+              <option value="carte_categorie">Catégorie</option>
+              <option value="carte_rarete">Rareté</option>
+              <option value="carte_version">Version</option>
+              <option value="carte_couleur">Couleur</option>
+            </select>
+
+            <!-- Filtre d'état : carte = collectionnées, carte barrée = non collectionnées -->
+            <div id="filtre-etat" class="filtre-icones">
+              <div class="filtre-options">
+                <label title="Collectionnées"><input type="checkbox" value="oui"><svg class="icone" viewBox="0 0 24 24"><use href="#icone-carte"/></svg></label>
+                <label title="Non collectionnées"><input type="checkbox" value="non"><svg class="icone" viewBox="0 0 24 24"><use href="#icone-carte"/><use href="#icone-barre"/></svg></label>
+              </div>
+            </div>
+
+            <!-- Filtre panier : caddie = dans le panier, caddie barré = hors panier -->
+            <div id="filtre-panier" class="filtre-icones">
+              <div class="filtre-options">
+                <label title="Dans le panier"><input type="checkbox" value="oui"><svg class="icone" viewBox="0 0 24 24"><use href="#icone-caddie"/></svg></label>
+                <label title="Hors panier"><input type="checkbox" value="non"><svg class="icone" viewBox="0 0 24 24"><use href="#icone-caddie"/><use href="#icone-barre"/></svg></label>
+              </div>
+            </div>
+
+            <!-- Bouton pour vider le panier (caddie barré rouge) -->
+            <button type="button" id="bouton-vider-panier" class="bouton-vider-panier" title="Vider le panier">
+              <svg class="icone" viewBox="0 0 24 24"><use href="#icone-caddie"/><use href="#icone-barre"/></svg>
+              <span>Vider le panier</span>
+              <!-- Nombre de cartes dans le panier (rempli par app.js, masqué si le panier est vide) -->
+              <span id="compteur-panier" class="compteur-panier" hidden></span>
+            </button>
+
+            </div>
+
+          <!-- Pagination (remplie par app.js) -->
+          <nav id="pagination" class="pagination"></nav>
+
+        </div>
+        <!-- Fin de la barre au-dessus du classeur -->
+
+
+        <!-- Classeur : double page de vignettes (remplie par app.js) -->
+        <main id="grille-cartes"></main>
+
+        <!-- Messages (chargement, erreurs) -->
+        <p id="message-application" class="message"></p>
+
+
+      </div>
+      <!-- Fin du contenu principal -->
+
+
+    </div>
+    <!-- Fin de l'onglet « Cartes » -->
+
+
+    <!-- ====================================================================================================== -->
+
+
+    <!-- Onglet « Séries » : résumé de la collection par série -->
+    <section id="onglet-series" class="onglet-contenu" hidden>
+
+      <!-- Tableau (défilement horizontal sur petit écran) -->
+      <div class="tableau-conteneur">
+        <table class="tableau-series">
+          <thead>
+            <tr>
+              <th>Série</th>
+              <th>Nom</th>
+              <th>Sortie</th>
+              <th>Possédées</th>
+              <th><img class="drapeau" src="https://flagcdn.com/jp.svg" alt="JP" title="Japonais"></th>
+              <th><img class="drapeau" src="https://flagcdn.com/gb.svg" alt="EN" title="Anglais"></th>
+              <th><img class="drapeau" src="https://flagcdn.com/fr.svg" alt="FR" title="Français"></th>
+              <th>Langues</th>
+              <th>Progression</th>
+              <th>Crayon</th>
+              <th>Langue</th>
+              <th>Cartes</th>
+            </tr>
+          </thead>
+          <!-- Une ligne par série (remplie par app.js) -->
+          <tbody id="tableau-series"></tbody>
+        </table>
+      </div>
+
+    </section>
+    <!-- Fin de l'onglet « Séries » -->
+
+
+    <!-- ====================================================================================================== -->
+
+
+    <!-- Onglet « À propos » -->
+    <section id="onglet-apropos" class="onglet-contenu" hidden>
+
+           <!-- Mentions légales : éditeur et hébergement -->
+      <article class="apropos-bloc">
+        <h3>Mentions légales</h3>
+        <p>
+          Éditeur du site : DATAfutée → <a href="https://datafutee.fr" target="_blank" rel="noopener">datafutee.fr</a>.<br>
+          Contact : <a href="mailto:datafutee@gmail.com">datafutee@gmail.com</a>.
+        </p>
+        <p>
+          Hébergement du site : GitHub, Inc.<br>
+          Hébergement de la base de données et des comptes : Supabase, Inc.
+        </p>
+      </article>
+
+      <!-- Propriété intellectuelle et absence d'affiliation -->
+      <article class="apropos-bloc">
+        <h3>Propriété intellectuelle</h3>
+        <p>
+          One Piece © Eiichiro Oda / Shueisha, Toei Animation.<br>
+          One Piece Card Game © Bandai. Les noms, illustrations, visuels de cartes, logos et marques cités restent la propriété exclusive de leurs détenteurs respectifs.
+        </p>
+        <p>
+          Ce site est un projet personnel, non officiel et sans but commercial. Il ne vend rien, n'affiche aucune publicité et ne perçoit aucune rémunération.<br>
+          Il n'a aucune affiliation et aucun lien avec Eiichiro Oda, Shueisha, Toei Animation, Bandai, Bandai Namco, Limitless TCG, Cardmarket ou Fandom, qui ne l'approuvent ni ne le soutiennent.
+        </p>
+        <p>
+          Les visuels des cartes ne sont pas stockés sur ce site. Ils sont affichés depuis leur source d'origine, à titre d'illustration et de référence pour la gestion d'une collection personnelle.<br>
+          Tout ayant droit qui souhaite le retrait d'un contenu peut écrire à l'adresse de contact ci-dessus. Dans ce cas, il sera retiré dans les meilleurs délais.
+        </p>
+      </article>
+
+      <!-- Sources des données et des visuels -->
+      <article class="apropos-bloc">
+        <h3>Sources</h3>
+        <p>
+          Liste des cartes : construite à la main à partir du site officiel <a href="https://en.onepiece-cardgame.com/" target="_blank" rel="noopener">One Piece Card Game</a>.<br>
+          Visuels des cartes : <a href="https://onepiece.limitlesstcg.com/" target="_blank" rel="noopener">Limitless TCG</a>.<br>
+          Primes des personnages : <a href="https://onepiece.fandom.com/fr/wiki/Primes/Avis_de_recherche" target="_blank" rel="noopener">One Piece Encyclopédie</a><a href="https://creativecommons.org/licenses/by-sa/3.0/deed.fr" target="_blank" rel="noopener">CC BY-SA</a>.<br>
+          Recherche de prix : liens vers <a href="https://www.cardmarket.com/fr/OnePiece" target="_blank" rel="noopener">Cardmarket</a>.
+        </p>
+        <p>
+          Ces informations sont fournies à titre indicatif, sans garantie d'exactitude ni d'exhaustivité. La prime affichée est un jeu sans valeur réelle.
+        </p>
+      </article>
+
+      <!-- Données personnelles -->
+      <article class="apropos-bloc">
+        <h3>Données personnelles</h3>
+        <p>
+          Le site enregistre uniquement l'adresse email de connexion et l'état de la collection (cartes possédées par langue et cartes dans le panier), hébergés par Supabase et réservés à l'utilisateur connecté.<br>
+          Aucune donnée n'est vendue, partagée ou utilisée à des fins publicitaires, et aucun outil de mesure d'audience n'est utilisé.
+        </p>
+        <p>
+          Le navigateur conserve la session de connexion et la dernière liste de primes lue (stockage local), sans cookie publicitaire.<br>
+          Chaque utilisateur peut demander l'accès, la correction ou la suppression de ses données à l'adresse de contact ci-dessus.
+        </p>
+      </article>
+
+      <!-- Responsabilité et liens externes -->
+      <article class="apropos-bloc">
+        <h3>Responsabilité</h3>
+        <p>
+          Le site est fourni "en l'état", sans garantie de disponibilité. L'éditeur ne saurait être tenu responsable d'une perte de données, d'une erreur dans les informations affichées ou d'une décision d'achat ou de vente prise à partir de celles-ci.<br>
+          Les liens vers des sites externes sont proposés pour information. Leur contenu relève de la seule responsabilité de leurs éditeurs.
+        </p>
+      </article>
+
+      <!-- Développement : outils utilisés -->
+      <article class="apropos-bloc">
+        <h3>Développement</h3>
+        <p>
+          Réalisé par <a href="https://datafutee.fr" target="_blank" rel="noopener">DATAfutée</a>.
+        </p>
+        <p>
+          Base de données : créée avec Microsoft Excel et RStudio (langage R, packages tidyverse, readxl, writexl, httr, rvest, jsonlite, DBI et RPostgres).<br>
+          Hébergement de la base et des comptes : Supabase (base PostgreSQL, authentification), interrogée avec la bibliothèque supabase-js, chargée depuis jsDelivr.<br>
+          Site : HTML, CSS et JavaScript, mis en ligne avec GitHub.
+        </p>
+      </article>
+
+    </section>
+    <!-- Fin de l'onglet « À propos » -->
+
+
+    <!-- ====================================================================================================== -->
+
+
+    <!-- Aperçu des visuels d'une carte au survol de sa loupe (rempli et placé par app.js) -->
+    <div id="apercu-carte" class="apercu-carte" hidden></div>
+
+
+    <!-- ====================================================================================================== -->
+
+
+    <!-- Avis de recherche : affiche WANTED avec la prime de l'utilisateur, ouverte au clic sur le logo (remplie par app.js) -->
+    <div id="avis-recherche" class="avis-fond" hidden>
+      <div class="avis-poster" role="dialog" aria-modal="true" aria-labelledby="avis-titre">
+        <button type="button" id="bouton-fermer-avis" class="avis-fermer" aria-label="Fermer">✕</button>
+        <h2 id="avis-titre" class="avis-titre">WANTED</h2>
+        <p class="avis-mention">DEAD OR ALIVE</p>
+        <img id="avis-portrait" class="avis-portrait" src="www/wanted_icon.ico" alt="">
+        <p id="avis-nom" class="avis-nom"></p>
+        <p id="avis-montant" class="avis-montant"></p>
+        <p id="avis-equivalente" class="avis-equivalente"></p>
+        <p id="avis-personnage" class="avis-personnage"></p>
+        <p id="avis-progression" class="avis-progression"></p>
+      </div>
+    </div>
+
+
+  </section>
+  <!-- Fin de l'écran de l'application -->
+
+
+  <!-- ======================================================================================================== -->
+
+
+  <!-- Scripts, chargés en dernier une fois la page construite : outil Supabase, maj, liste des visuels promo (générée par R), puis script du site -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="maj.js"></script>
+  <script src="visuels_promos.js"></script>
+  <script src="app.js"></script>
+
+
+</body>
+<!-- Fin du corps de la page -->
+
+
+</html>
+
+
+<!-- ======================================================================================================== -->

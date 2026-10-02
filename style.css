@@ -1,0 +1,1763 @@
+/* ====================================================================================== */
+
+
+/* ▶ Réglages (à modifier) ==== */
+
+
+:root {
+
+
+  /* ↳ Couleurs du site */
+  --bleu-fonce: #0b0e17; 
+  --bleu-roi: #1a2035; 
+  --blanc: #fffaf0; 
+  --blanc-casse: #f6f0dc; 
+  --rouge: #b8332a; 
+  --bleu-electrique: #3d7dca; 
+  --gris: rgba(255, 250, 240, 0.12); 
+  --parchemin: #e8d5a9; /* Fond de l'avis de recherche */
+  --encre: #3a2717; /* Texte et cadre de l'avis de recherche */
+
+
+  /* ↳ Couleurs des cartes (liseré gauche et pastilles) */
+  --carte-rouge: #c0392b; /* Rouge */
+  --carte-vert: #2e8b57; /* Vert */
+  --carte-bleu: #2f6db5; /* Bleu */
+  --carte-violet: #7b4ba0; /* Violet */
+  --carte-noir: #222; /* Noir (et DON!!) */
+  --carte-jaune: #e0b416; /* Jaune */
+  --carte-sans-couleur: #8a7a5c; /* Carte sans couleur connue */
+  --carte-non-collectionnee: #4a4a4a; /* Liseré des cartes non collectionnées */
+  --don-non-collectionnee: #1a1a1a; /* « !! » des DON!! non collectionnées */
+
+
+  /* ↳ Polices */
+  --police-titre: "Rye", Georgia, serif; /* Titre WANTED */
+  --police-texte: "Barlow", "Segoe UI", Arial, sans-serif; /* Reste du texte */
+  --taille-texte: 16px; /* Taille de base du texte */
+
+
+  /* ↳ Mise en page */
+  --largeur-barre-laterale: 350px; /* Largeur de la barre latérale des filtres */
+  --espace-colonnes: 1.5rem; /* Espace entre la barre latérale et le classeur */
+  --taille-icones: 1.8rem; /* Icônes au-dessus du classeur (filtres et vider le panier) */
+  --opacite-inactif: 0.35; /* Icône, drapeau ou caddie non activé */
+
+
+  /* ↳ Classeur */
+  --classeur-colonnes: 3; /* Vignettes par ligne dans une page (à accorder avec CARTES_PAR_PAGE dans app.js) */
+  --hauteur-case: 9.5rem; /* Hauteur fixe d'une case (vignette ou pochette vide) */
+  --espace-cases: 0.75rem; /* Espace entre les cases */
+  --largeur-reliure: 10px; /* Largeur de la reliure entre les deux pages */
+
+
+  /* ↳ Vignettes */
+  --largeur-lisere: 12px; /* Largeur du liseré gauche */
+  --taille-pastille: 0.8rem; /* Diamètre des pastilles de couleur */
+  --eclat-clair: rgba(255, 250, 240, 0.85); /* Reflet blanc des pastilles scintillantes */
+  --opacite-non-collectionnee: 0.45; /* Texte des cartes non collectionnées */
+  --taille-infos: 0.5rem; /* Texte « catégorie, rareté » */
+  --largeur-apercu: 200px; /* Largeur d'un visuel dans l'aperçu au survol de la loupe (réduite s'il y en a trop pour la largeur de la fenêtre) */
+
+
+}
+
+
+/* ====================================================================================== */
+
+
+/* ▶ Base ==== */
+
+
+/* Tous les éléments */
+* {
+  box-sizing: border-box; /* Largeur calculée bordures et marges intérieures comprises */
+  scrollbar-width: thin; /* Barre de défilement fine (Firefox, Chrome, Edge) */
+  scrollbar-color: var(--bleu-electrique) transparent; /* Curseur bleu, fond transparent */
+}
+
+
+/* Barres de défilement (anciens Chrome et Safari) */
+::-webkit-scrollbar {
+  width: 6px; /* Largeur de la barre verticale */
+  height: 6px; /* Hauteur de la barre horizontale */
+}
+
+
+/* Fond des barres de défilement (anciens Chrome et Safari) */
+::-webkit-scrollbar-track {
+  background: transparent; /* Fond transparent */
+}
+
+
+/* Curseur des barres de défilement (anciens Chrome et Safari) */
+::-webkit-scrollbar-thumb {
+  background: var(--bleu-electrique); /* Curseur bleu */
+  border-radius: 3px; /* Coins arrondis */
+}
+
+
+/* Document : place de la barre de défilement toujours réservée (la page ne bouge plus d'un onglet à l'autre) */
+html {
+  scrollbar-gutter: stable; /* Espace réservé même quand la page ne défile pas */
+}
+
+
+/* Page */
+body {
+  margin: 0; /* Aucune marge autour de la page */
+  background: var(--bleu-fonce); /* Couleur du fond */
+  color: var(--blanc); /* Couleur du texte */
+  font-family: var(--police-texte); /* Police du texte */
+  font-size: var(--taille-texte); /* Taille du texte */
+}
+
+
+/* Boutons, champs et listes déroulantes */
+button, input, select {
+  font: inherit; /* Même police que le reste de la page */
+}
+
+
+/* Boutons */
+button {
+  cursor: pointer; /* Curseur en forme de main au survol */
+}
+
+
+/* Éléments marqués « hidden » */
+[hidden] {
+  display: none !important; /* Toujours cachés */
+}
+
+
+/* Élément actif au clavier */
+:focus-visible {
+  outline: none; /* Aucun cadre */
+}
+
+
+/* Titre WANTED */
+.titre {
+  font-family: var(--police-titre); /* Police du titre */
+  color: var(--blanc-casse); /* Couleur du texte */
+  font-weight: 400; /* Épaisseur normale */
+  letter-spacing: 0.08em; /* Espace entre les lettres */
+  margin: 0; /* Aucune marge autour */
+}
+
+
+/* Messages */
+.message {
+  min-height: 1.4em; /* Hauteur minimale (évite que la page saute quand un message apparaît) */
+  margin: 0.5rem 0; /* Marge en haut et en bas */
+  color: var(--bleu-fonce); /* Couleur du texte */
+}
+
+
+/* Réserve d'icônes : présente dans la page mais invisible */
+.sprite-icones {
+  position: absolute; /* Hors du flux de la page */
+  width: 0; /* Aucune largeur */
+  height: 0; /* Aucune hauteur */
+  overflow: hidden; /* Rien de visible */
+}
+
+
+/* Icônes dessinées au trait */
+.icone {
+  fill: none; /* Aucun remplissage */
+  stroke: currentColor; /* Trait de la couleur du texte */
+  stroke-width: 2; /* Épaisseur du trait */
+  stroke-linecap: round; /* Extrémités arrondies */
+  stroke-linejoin: round; /* Angles arrondis */
+}
+
+
+/* Drapeaux (tableau des séries) */
+.drapeau {
+  display: inline-block; /* Côte à côte */
+  width: 1.8em; /* Largeur du drapeau */
+  height: 1.2em; /* Hauteur du drapeau (format 3:2) */
+  object-fit: cover; /* Même format pour tous les drapeaux */
+  vertical-align: middle; /* Centré verticalement */
+}
+
+
+/* ====================================================================================== */
+
+
+/* ▶ Écran de connexion ==== */
+
+
+/* Écran */
+#ecran-connexion {
+  min-height: 100vh; /* Hauteur minimale : toute la fenêtre */
+  display: grid; /* Disposition en grille */
+  place-items: center; /* Formulaire centré horizontalement et verticalement */
+  padding: 1rem; /* Marge intérieure */
+}
+
+
+/* Formulaire */
+.affiche {
+  width: min(100%, 460px); /* Largeur : 460 px, ou toute la largeur si l'écran est plus étroit */
+  background: var(--bleu-roi); /* Couleur du fond */
+  padding: 2.5rem; /* Marge intérieure */
+  display: grid; /* Éléments empilés les uns sous les autres */
+  gap: 1.1rem; /* Espace entre les éléments */
+  border: 6px double var(--blanc); /* Double bordure */
+}
+
+
+/* Titre du formulaire */
+.affiche .titre {
+  font-size: 4rem; /* Taille du texte */
+  text-align: center; /* Texte centré */
+}
+
+
+/* Texte sous le titre */
+.sous-titre {
+  margin: 0 0 0.5rem; /* Marge en bas uniquement */
+  text-align: center; /* Texte centré */
+}
+
+
+/* Libellés (Email, Mot de passe) */
+.affiche label {
+  display: grid; /* Texte au-dessus du champ */
+  gap: 0.25rem; /* Espace entre le texte et le champ */
+  font-weight: 600; /* Semi-gras */
+}
+
+
+/* Champs de saisie */
+.affiche input {
+  padding: 0.55rem; /* Marge intérieure */
+  border: 2px solid var(--blanc); /* Bordure */
+  background: var(--blanc); /* Couleur du fond */
+}
+
+
+/* Message de connexion */
+.affiche .message {
+  color: var(--rouge); /* Couleur du texte */
+}
+
+
+/* Bouton de connexion */
+.bouton-principal {
+  padding: 0.7rem; /* Marge intérieure */
+  background: var(--rouge); /* Couleur du fond */
+  color: #fff; /* Couleur du texte */
+  border: none; /* Aucune bordure */
+  font-weight: 700; /* Gras */
+}
+
+
+/* Champ mot de passe et bouton Voir/Cacher */
+.champ-mot-de-passe {
+  display: flex; /* Côte à côte */
+}
+
+
+/* Champ mot de passe */
+.champ-mot-de-passe input {
+  flex: 1; /* Prend toute la place restante */
+  min-width: 0; /* Peut rétrécir sur petit écran */
+}
+
+
+/* Bouton Voir/Cacher */
+.champ-mot-de-passe button {
+  padding: 0 0.8rem; /* Marge intérieure à gauche et à droite */
+  border: 2px solid var(--blanc); /* Bordure */
+  border-left: none; /* Aucune bordure à gauche (collé au champ) */
+  background: var(--blanc); /* Couleur du fond */
+  color: var(--bleu-roi); /* Couleur du texte */
+  font-weight: 600; /* Semi-gras */
+}
+
+
+/* ====================================================================================== */
+
+
+/* ▶ En-tête et onglets ==== */
+
+
+/* Écran de l'application */
+#ecran-application {
+  min-height: 100vh; /* Hauteur minimale : toute la fenêtre */
+  padding: 1rem 1.5rem; /* Marge intérieure (haut/bas, gauche/droite) */
+}
+
+
+/* En-tête */
+.en-tete {
+  display: flex; /* Éléments côte à côte */
+  justify-content: space-between; /* Titre à gauche, utilisateur à droite */
+  align-items: center; /* Centrés verticalement */
+  flex-wrap: wrap; /* Retour à la ligne si l'écran est trop étroit */
+  gap: 1rem; /* Espace entre les éléments */
+}
+
+
+/* Bouton autour du logo (ouvre l'avis de recherche) */
+.bouton-logo {
+  display: flex; /* Logo seul, sans marge */
+  padding: 0; /* Aucune marge intérieure */
+  border: none; /* Aucune bordure */
+  background: none; /* Aucun fond */
+  cursor: pointer; /* Curseur en forme de main */
+}
+
+
+/* Logo au clic : petit saut */
+.bouton-logo.saute .logo {
+  animation: logo-saut 0.5s ease; /* Saut rapide */
+}
+
+
+/* Animation du saut : monte en penchant, puis retombe */
+@keyframes logo-saut {
+  0%, 100% { transform: translateY(0) rotate(0); } /* Position de départ */
+  35% { transform: translateY(-10px) rotate(-8deg); } /* En l'air, penché */
+  70% { transform: translateY(0) rotate(5deg); } /* Retombée */
+}
+
+
+/* Logo à gauche du titre, de la hauteur du titre et de la devise */
+.logo {
+  height: 4rem; /* Hauteur */
+  width: auto; /* Proportions conservées */
+  margin-right: -0.25rem; /* Rapproché du titre (l'en-tête met déjà 1rem d'espace) */
+}
+
+
+/* Titre de l'en-tête */
+.en-tete .titre {
+  font-size: 2.4rem; /* Taille du texte */
+}
+
+
+/* Titre et devise empilés */
+.en-tete-titre {
+  display: flex; /* Disposition souple */
+  flex-direction: column; /* Devise sous le titre */
+  align-items: flex-start; /* Devise alignée à gauche sous le titre */
+}
+
+
+/* Devise sous le titre */
+.devise {
+  margin: 0; /* Aucune marge autour */
+  font-size: 0.8rem; /* Taille du texte */
+  font-style: italic; /* Italique */
+  color: var(--bleu-electrique); /* Couleur du texte */
+}
+
+
+/* Barre des onglets */
+.onglets {
+  display: flex; /* Onglets côte à côte */
+  gap: 0.5rem; /* Espace entre les onglets */
+  margin-left: 1.5rem; /* Espace avec le titre */
+  margin-right: auto; /* Collée au titre, utilisateur poussé à droite */
+}
+
+
+/* Onglet */
+.onglet {
+  padding: 0.4rem 1rem; /* Marge intérieure (haut/bas, gauche/droite) */
+  border: none; /* Aucune bordure */
+  border-bottom: 3px solid transparent; /* Soulignement invisible */
+  background: none; /* Aucun fond */
+  color: var(--blanc); /* Couleur du texte */
+  font-weight: 600; /* Semi-gras */
+  opacity: 0.6; /* Estompé tant qu'il n'est pas sélectionné */
+}
+
+
+/* Onglet sélectionné */
+.onglet.actif {
+  border-bottom-color: var(--bleu-electrique); /* Soulignement bleu */
+  opacity: 1; /* Bien visible */
+}
+
+
+/* Date de mise à jour, email et bouton de déconnexion */
+.en-tete-utilisateur {
+  display: flex; /* Côte à côte */
+  align-items: baseline; /* Textes posés sur la même ligne même avec des tailles différentes */
+  gap: 0.75rem; /* Espace entre les éléments */
+}
+
+
+/* Chaque élément du bloc : même boîte pour un alignement vertical parfait */
+.en-tete-utilisateur > * {
+  font-size: 1rem; /* Même taille de texte */
+  line-height: 1.2; /* Même interligne */
+  margin: 0; /* Aucune marge autour (le navigateur en ajoute aux boutons) */
+  padding: 0.35rem 0; /* Même marge intérieure en haut et en bas */
+}
+
+
+/* Date de mise à jour */
+#maj {
+  opacity: 0.6; /* Légèrement estompée */  
+  font-size: 0.7rem; /* Taille du texte */
+}
+
+
+/* Logos cliquables (Cardmarket et site officiel), à droite du bouton pour vider le panier */
+.liens-logos {
+  display: flex; /* Logos côte à côte */
+  align-items: center; /* Centrés verticalement */
+  gap: 0.5rem; /* Espace entre les deux logos */
+  margin-left: auto; /* Poussés à droite, collés à la pagination */
+}
+
+
+/* Lien vers un site (logo cliquable) */
+.lien-logo {
+  display: flex; /* Dimensions respectées */
+  opacity: 0.8; /* Légèrement estompé */
+}
+
+
+/* Lien vers un site au survol */
+.lien-logo:hover {
+  opacity: 1; /* Bien visible */
+}
+
+
+/* Logo */
+.lien-logo img {
+  display: block; /* Dimensions respectées */
+  height: 1.4rem; /* Hauteur du logo (largeur calculée automatiquement) */
+  width: auto; /* Proportions conservées */
+  filter: brightness(0) invert(1); /* Logo en blanc : passé en noir, puis inversé */
+}
+
+
+/* Bouton de déconnexion */
+#bouton-deconnexion {
+  background: none; /* Aucun fond */
+  border: none; /* Aucune bordure */
+  color: var(--blanc); /* Couleur du texte */
+}
+
+
+/* ====================================================================================== */
+
+
+/* ▶ Onglet « Cartes » : barre latérale ==== */
+
+
+/* Mise en page : barre latérale à gauche, classeur à droite */
+.mise-en-page {
+  display: grid; /* Disposition en grille */
+  grid-template-columns: var(--largeur-barre-laterale) 1fr; /* Barre latérale, puis le reste pour le classeur */
+  gap: var(--espace-colonnes); /* Espace entre les deux colonnes */
+  align-items: start; /* Alignées en haut, chacune à sa propre hauteur */
+  margin-top: 1.5rem; /* Marge en haut */
+}
+
+
+/* Barre latérale */
+.barre-outils {
+  display: flex; /* Disposition souple */
+  flex-direction: column; /* Éléments empilés les uns sous les autres */
+  gap: 1rem; /* Espace entre les éléments */
+  padding: 1rem; /* Marge intérieure */
+  background: var(--bleu-roi); /* Couleur du fond */
+  position: sticky; /* Reste visible pendant le défilement */
+  top: 1rem; /* Distance avec le haut de la fenêtre */
+}
+
+
+/* Prime de collection : avis de recherche en tête de la barre latérale */
+.prime {
+  display: flex; /* Éléments empilés */
+  flex-direction: column; /* Titre, montant puis prime équivalente */
+  align-items: flex-start; /* Alignés à gauche */
+  gap: 0.15rem; /* Espace entre les lignes */
+  padding-bottom: 0.75rem; /* Marge intérieure en bas */
+  border-bottom: 1px solid var(--gris); /* Séparation avec la progression */
+  text-align: left; /* Texte aligné à gauche */
+}
+
+
+/* Mot « Prime » */
+.prime-titre {
+  margin-bottom: 0.5rem; /* Espace sous le titre */
+  font-family: var(--police-titre); /* Police du titre */
+  font-size: 0.9rem; /* Taille du texte */
+  letter-spacing: 0.1em; /* Espace entre les lettres */
+}
+
+
+/* Montant de la prime */
+.prime-montant {
+  font-size: 0.9rem; /* Taille du texte */
+  font-weight: 700; /* Gras */
+  color: var(--bleu-electrique); /* Bleu */
+}
+
+
+/* Prime équivalente d'un personnage */
+.prime-equivalente {
+  font-size: 0.75rem; /* Taille du texte */
+  font-style: italic; /* Italique */
+  opacity: 0.7; /* Légèrement estompée */
+}
+
+
+/* Progression */
+#progression {
+  margin: 0; /* Aucune marge autour */
+  color: var(--bleu-electrique); /* Couleur du texte */
+  font-size: 0.9rem; /* Taille du texte */
+  font-weight: 700; /* Gras */
+}
+
+
+/* Champ de recherche */
+#recherche {
+  width: 100%; /* Toute la largeur de la barre latérale */
+  padding: 0.45rem; /* Marge intérieure */
+  margin: 0.45rem 0; /* Marge extérieure en haut et en bas */
+  border: none; /* Aucune bordure */
+}
+
+
+/* Filtre dépliable */
+.filtre {
+  border-bottom: 1px solid var(--gris); /* Séparation avec la recherche */
+}
+
+
+/* Nom du filtre et résumé (cliquable pour déplier) */
+.filtre summary {
+  display: flex; /* Nom, résumé et flèche côte à côte */
+  align-items: center; /* Centrés verticalement */
+  gap: 0.5rem; /* Espace entre les éléments */
+  padding: 0.5rem 0; /* Marge intérieure en haut et en bas */
+  font-weight: 600; /* Semi-gras */
+  cursor: pointer; /* Curseur en forme de main au survol */
+  list-style: none; /* Masque le triangle du navigateur */
+}
+
+
+/* Triangle du navigateur (Safari) */
+.filtre summary::-webkit-details-marker {
+  display: none; /* Invisible */
+}
+
+
+/* Flèche du filtre */
+.filtre summary::after {
+  content: "▾"; /* Flèche vers le bas */
+  transition: transform 0.2s; /* Rotation progressive */
+}
+
+
+/* Flèche du filtre déplié */
+.filtre[open] summary::after {
+  transform: rotate(180deg); /* Flèche vers le haut */
+}
+
+
+/* Résumé des options cochées */
+.filtre-resume {
+  margin-left: auto; /* Poussé à droite */
+  max-width: 60%; /* Largeur maximale */
+  overflow: hidden; /* Texte trop long masqué */
+  text-overflow: ellipsis; /* « … » en fin de texte coupé */
+  white-space: nowrap; /* Pas de retour à la ligne */
+  font-weight: 400; /* Épaisseur normale */
+  opacity: 0.7; /* Légèrement estompé */
+}
+
+
+/* Liste des options */
+.filtre .filtre-options {
+  display: grid; /* Options empilées les unes sous les autres */
+  gap: 0.35rem; /* Espace entre les options */
+  max-height: 240px; /* Hauteur maximale */
+  overflow-y: auto; /* Défilement si la liste est plus longue */
+  padding: 0.25rem 0 0.75rem; /* Marge intérieure (haut, gauche/droite, bas) */
+}
+
+
+/* Option */
+.filtre .filtre-options label {
+  display: flex; /* Case et texte côte à côte */
+  align-items: center; /* Centrés verticalement */
+  gap: 0.5rem; /* Espace entre la case et le texte */
+  cursor: pointer; /* Curseur en forme de main au survol */
+}
+
+
+/* Case à cocher */
+.filtre .filtre-options input {
+  margin: 0; /* Aucune marge autour */
+  accent-color: var(--bleu-electrique); /* Case cochée bleue */
+}
+
+
+/* Bouton pour réinitialiser les filtres */
+.bouton-reinitialiser {
+  align-self: flex-end; /* Calé à droite */
+  padding: 0; /* Aucune marge intérieure */
+  border: none; /* Aucune bordure */
+  background: none; /* Aucun fond */
+  color: var(--rouge); /* Couleur du texte */
+  font-weight: 600; /* Semi-gras */
+}
+
+
+/* ====================================================================================== */
+
+
+/* ▶ Onglet « Cartes » : barre au-dessus du classeur ==== */
+
+
+/* Barre : tri et icônes à gauche, pagination à droite */
+.barre-tri {
+  display: flex; /* Côte à côte */
+  justify-content: space-between; /* Tri à gauche, pagination à droite */
+  align-items: center; /* Centrés verticalement */
+  flex-wrap: wrap; /* Retour à la ligne si l'écran est trop étroit */
+  gap: 1rem; /* Espace entre les deux groupes */
+  margin-bottom: 1rem; /* Espace entre la barre et le classeur */
+}
+
+
+/* Tri, icônes de filtre et bouton pour vider le panier */
+.barre-tri-gauche {
+  display: flex; /* Côte à côte */
+  align-items: center; /* Centrés verticalement */
+  gap: 1.5rem; /* Espace entre le tri et les groupes d'icônes */
+}
+
+
+/* Liste de tri */
+#choix-tri {
+  appearance: none; /* Masque la flèche du navigateur */
+  background: var(--bleu-roi) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23fffaf0' stroke-width='2'/%3E%3C/svg%3E") no-repeat; /* Fond bleu nuit et flèche claire */
+  background-position: right 0.8rem center; /* Flèche à 0.8rem du bord droit, centrée verticalement */
+  background-size: 0.75rem; /* Taille de la flèche */
+  padding: 0.45rem 2.2rem 0.45rem 0.8rem; /* Marge intérieure (haut, droite pour la flèche, bas, gauche) */
+  border: 2px solid var(--bleu-roi); /* Bordure de la couleur du fond */
+  color: var(--blanc); /* Couleur du texte */
+  font-weight: 600; /* Semi-gras */
+  min-width: 240px; /* Largeur minimale */
+  margin: 0; /* Aucune marge autour */
+}
+
+
+/* Options de la liste de tri */
+#choix-tri option {
+  background: var(--bleu-roi); /* Fond bleu nuit dans la liste ouverte */
+  color: var(--blanc); /* Couleur du texte */
+}
+
+
+/* Groupe d'icônes de filtre */
+.filtre-icones .filtre-options {
+  display: flex; /* Côte à côte */
+  align-items: center; /* Centrées verticalement */
+  gap: 0.5rem; /* Espace entre les icônes */
+}
+
+
+/* Icône de filtre : cliquable */
+.filtre-icones label {
+  display: flex; /* Dimensions respectées */
+  cursor: pointer; /* Curseur en forme de main au survol */
+}
+
+
+/* Case à cocher masquée (l'icône la remplace) */
+.filtre-icones input {
+  display: none; /* Invisible */
+}
+
+
+/* Icône de filtre : estompée tant qu'elle n'est pas activée */
+.filtre-icones .icone {
+  width: var(--taille-icones); /* Largeur */
+  height: var(--taille-icones); /* Hauteur */
+  opacity: var(--opacite-inactif); /* Estompée */
+}
+
+
+/* Icône de filtre activée */
+.filtre-icones input:checked + .icone {
+  color: var(--bleu-electrique); /* Dorée */
+  opacity: 1; /* Bien visible */
+}
+
+
+/* Bouton pour vider le panier */
+.bouton-vider-panier {
+  display: flex; /* Icône et texte côte à côte */
+  align-items: center; /* Centrés verticalement */
+  gap: 0.5rem; /* Espace entre l'icône et le texte */
+  padding: 0; /* Aucune marge intérieure */
+  border: none; /* Aucune bordure */
+  background: none; /* Aucun fond */
+  color: var(--rouge); /* Texte et caddie en rouge */
+  font-weight: 600; /* Semi-gras */
+}
+
+
+/* Caddie barré du bouton */
+.bouton-vider-panier .icone {
+  width: var(--taille-icones); /* Largeur */
+  height: var(--taille-icones); /* Hauteur */
+}
+
+
+/* Nombre de cartes dans le panier : pastille rouge */
+.compteur-panier {
+  min-width: 1.4rem; /* Largeur minimale (rond pour un seul chiffre) */
+  padding: 0.1rem 0.4rem; /* Marge intérieure (haut/bas, gauche/droite) */
+  border-radius: 999px; /* Bords arrondis */
+  background: var(--rouge); /* Fond rouge */
+  color: var(--blanc); /* Texte clair */
+  font-size: 0.75rem; /* Taille du texte */
+  text-align: center; /* Chiffre centré */
+}
+
+
+/* Pagination */
+.pagination {
+  display: flex; /* Éléments côte à côte */
+  align-items: center; /* Centrés verticalement */
+  gap: 1rem; /* Espace entre les éléments */
+}
+
+
+/* Flèches de pagination */
+.pagination button {
+  padding: 0.35rem 0.8rem; /* Marge intérieure (haut/bas, gauche/droite) */
+  border: none; /* Aucune bordure */
+  background: none; /* Aucun fond */
+  color: var(--blanc); /* Couleur du texte */
+}
+
+
+/* Flèche inactive (première ou dernière double page) */
+.pagination button:disabled {
+  opacity: 0.25; /* Presque transparente */
+  cursor: not-allowed; /* Curseur d'interdiction au survol */
+}
+
+
+/* ====================================================================================== */
+
+
+/* ▶ Onglet « Cartes » : classeur ==== */
+
+
+/* Message sous le classeur : masqué s'il est vide */
+#message-application:empty {
+  display: none; /* Invisible */
+}
+
+
+/* Classeur : double page */
+#grille-cartes {
+  display: grid; /* Disposition en grille */
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* Deux pages de largeur strictement égale */
+}
+
+
+/* Page du classeur */
+.page-classeur {
+  display: grid; /* Disposition en grille */
+  grid-template-columns: repeat(var(--classeur-colonnes), minmax(0, 1fr)); /* Cases de largeur strictement égale */
+  grid-auto-rows: var(--hauteur-case); /* Hauteur fixe de chaque case, identique sur toutes les pages */
+  gap: var(--espace-cases); /* Espace entre les cases */
+  padding: 0 1rem; /* Marge intérieure à gauche et à droite */
+}
+
+
+/* Page de gauche : alignée à gauche avec le tri */
+.page-classeur:first-child {
+  padding-left: 0; /* Aucune marge à gauche */
+}
+
+
+/* Page de droite : alignée à droite avec la pagination */
+.page-classeur:last-child {
+  padding-right: 0; /* Aucune marge à droite */
+}
+
+
+/* Reliure entre les deux pages */
+.page-classeur + .page-classeur {
+  border-left: var(--largeur-reliure) solid var(--bleu-roi); /* Barre verticale */
+}
+
+
+/* Pochette vide */
+.emplacement-vide {
+  border: 2px dashed rgba(255, 250, 240, 0.15); /* Bordure en pointillés discrète */
+}
+
+
+/* ====================================================================================== */
+
+
+/* ▶ Onglet « Cartes » : vignettes ==== */
+
+
+/* Vignette */
+.carte {
+  position: relative; /* Repère pour placer les pastilles et le « !! » des DON!! */
+  display: grid; /* Éléments empilés les uns sous les autres */
+  grid-template-rows: auto auto auto 1fr auto; /* Série, numéro, nom, catégorie/rareté (prend l'espace libre), drapeaux et caddie tout en bas */
+  gap: 0.35rem; /* Espace entre les éléments */
+  min-width: 0; /* Empêche un nom long d'élargir la colonne */
+  padding: 0.75rem; /* Marge intérieure */
+  background: var(--bleu-roi); /* Couleur du fond */
+  border-left: var(--largeur-lisere) solid var(--couleur-carte, var(--carte-sans-couleur)); /* Liseré gauche à la couleur de la carte */
+  border-image: linear-gradient(var(--couleur-carte, var(--carte-sans-couleur)) 50%, var(--couleur-carte-2, var(--couleur-carte, var(--carte-sans-couleur))) 50%) 1; /* Liseré coupé en deux si la carte a deux couleurs */
+  overflow: hidden; /* Contenu qui dépasse de la case masqué */
+}
+
+
+/* Vignette non collectionnée : liseré gris */
+.carte:not(.collectionnee) {
+  border-left-color: var(--carte-non-collectionnee); /* Liseré gris */
+  border-image: none; /* Annule le liseré bicolore */
+}
+
+
+/* Vignette non collectionnée : texte estompé (boutons et pastilles non concernés) */
+.carte:not(.collectionnee) > :not(.carte-boutons):not(.carte-pastilles):not(.carte-loupe) {
+  opacity: var(--opacite-non-collectionnee); /* Estompé */
+}
+
+
+/* Série de la carte */
+.carte-serie {
+  margin: 0; /* Aucune marge autour */
+  font-size: 0.75rem; /* Taille du texte */
+  font-weight: 700; /* Gras */
+  letter-spacing: 0.05em; /* Espace entre les lettres */
+  color: var(--bleu-electrique); /* Couleur du texte */
+}
+
+
+/* Numéro de la carte */
+.carte-numero {
+  margin: 0; /* Aucune marge autour */
+  font-size: 0.85rem; /* Taille du texte */
+  font-weight: 700; /* Gras */
+}
+
+
+/* Nom de la carte */
+.carte-nom {
+  margin: 0; /* Aucune marge autour */
+  font-size: 0.85rem; /* Taille du texte */
+  line-height: 1.2; /* Interligne */
+  height: 2.4em; /* Hauteur fixe de 2 lignes (2 × interligne de 1.2) */
+  overflow: hidden; /* Texte au-delà de 2 lignes masqué */
+  display: -webkit-box; /* Nécessaire pour limiter le nombre de lignes */
+  -webkit-box-orient: vertical; /* Lignes empilées */
+  -webkit-line-clamp: 2; /* 2 lignes maximum, avec « … » si le nom est plus long */
+}
+
+
+/* Catégorie et rareté */
+.carte-infos {
+  margin: 0; /* Aucune marge autour */
+  font-size: var(--taille-infos); /* Taille du texte */
+  white-space: nowrap; /* Une seule ligne */
+  overflow: hidden; /* Texte qui dépasse masqué */
+  text-overflow: ellipsis; /* « … » en fin de texte coupé */
+}
+
+
+/* Drapeaux et caddie */
+.carte-boutons {
+  display: flex; /* Côte à côte */
+  align-items: center; /* Centrés verticalement */
+  gap: 0.35rem; /* Espace entre les boutons */
+  margin-top: 0.3rem; /* Marge en haut */
+}
+
+
+/* Bouton : l'icône seule, sans cadre */
+.carte-boutons button {
+  flex: 0 0 auto; /* Taille de l'icône */
+  padding: 0; /* Aucune marge intérieure */
+  border: none; /* Aucune bordure */
+  background: none; /* Aucun fond */
+  color: var(--blanc); /* Couleur du caddie */
+  opacity: var(--opacite-inactif); /* Estompé tant qu'il n'est pas activé */
+}
+
+
+/* Caddie : poussé tout à droite de la vignette */
+.carte-boutons button.panier {
+  margin-left: auto; /* Prend l'espace libre à sa gauche */
+}
+
+
+/* Drapeau */
+.carte-boutons img {
+  display: block; /* Dimensions respectées */
+  width: 1.8em; /* Largeur du drapeau */
+  height: 1.2em; /* Hauteur du drapeau (format 3:2) */
+  object-fit: cover; /* Remplit le cadre sans déformer */
+}
+
+
+/* Caddie */
+.carte-boutons .icone {
+  display: block; /* Dimensions respectées */
+  width: 1.4em; /* Largeur du caddie */
+  height: 1.4em; /* Hauteur du caddie */
+}
+
+
+/* Langue collectionnée ou carte dans le panier */
+.carte-boutons button.actif {
+  opacity: 1; /* Bien visible */
+}
+
+
+/* Carte dans le panier */
+.carte-boutons button.panier.actif {
+  color: var(--rouge); /* Caddie en rouge */
+}
+
+
+/* Langue non sortie pour la série */
+.carte-boutons button:disabled {
+  visibility: hidden; /* Drapeau masqué, emplacement conservé */
+}
+
+
+/* Loupe sous les pastilles : recherche de la carte sur Cardmarket */
+.carte-loupe {
+  position: absolute; /* Placée par-dessus la vignette */
+  z-index: 1; /* Au premier plan, cliquable même quand le texte de la carte est estompé */
+  top: 2rem; /* Sous les pastilles, à hauteur du numéro de la carte */
+  right: 0.6rem; /* Alignée à droite avec les pastilles */
+  display: flex; /* Dimensions respectées */
+  color: var(--blanc); /* Couleur de la loupe */
+  opacity: var(--opacite-inactif); /* Estompée */
+}
+
+
+/* Taille de la loupe */
+.carte-loupe .icone {
+  width: 1rem; /* Largeur */
+  height: 1rem; /* Hauteur */
+}
+
+
+/* Pastilles de couleur en haut à droite */
+.carte-pastilles {
+  position: absolute; /* Placées par-dessus la vignette */
+  top: 0.75rem; /* Distance du haut */
+  right: 0.75rem; /* Distance de la droite */
+  display: flex; /* Côte à côte (cartes multicolores) */
+  gap: 0.25rem; /* Espace entre les pastilles */
+}
+
+
+/* Pastille : rond à la couleur de la carte, toujours en couleur */
+.carte-pastille {
+  width: var(--taille-pastille); /* Largeur */
+  height: var(--taille-pastille); /* Hauteur */
+  border-radius: 50%; /* Rond */
+  background: var(--couleur-carte, var(--carte-sans-couleur)); /* Couleur de la carte */
+  box-shadow: 0 0 0 1px rgba(255, 250, 240, 0.5); /* Fin contour clair (pastille noire visible sur fond sombre) */
+}
+
+
+/* ====================================================================================== */
+
+
+/* ▶ Onglet « Cartes » : couleurs des cartes ==== */
+
+
+/* Première couleur (liseré entier ou moitié haute, pastilles) */
+[data-couleur="red"] { --couleur-carte: var(--carte-rouge); } /* Rouge */
+[data-couleur="green"] { --couleur-carte: var(--carte-vert); } /* Vert */
+[data-couleur="blue"] { --couleur-carte: var(--carte-bleu); } /* Bleu */
+[data-couleur="purple"] { --couleur-carte: var(--carte-violet); } /* Violet */
+[data-couleur="black"] { --couleur-carte: var(--carte-noir); } /* Noir */
+[data-couleur="yellow"] { --couleur-carte: var(--carte-jaune); } /* Jaune */
+
+
+/* Deuxième couleur (moitié basse du liseré des cartes bicolores) */
+[data-couleur-2="red"] { --couleur-carte-2: var(--carte-rouge); } /* Rouge */
+[data-couleur-2="green"] { --couleur-carte-2: var(--carte-vert); } /* Vert */
+[data-couleur-2="blue"] { --couleur-carte-2: var(--carte-bleu); } /* Bleu */
+[data-couleur-2="purple"] { --couleur-carte-2: var(--carte-violet); } /* Violet */
+[data-couleur-2="black"] { --couleur-carte-2: var(--carte-noir); } /* Noir */
+[data-couleur-2="yellow"] { --couleur-carte-2: var(--carte-jaune); } /* Jaune */
+
+
+/* ====================================================================================== */
+
+
+/* ▶ Onglet « Cartes » : cartes DON!! ==== */
+
+
+/* Vignette DON!! : le « !! » posé sur le liseré doit rester visible */
+.carte.don {
+  overflow: visible; /* Pas de découpe au bord intérieur */
+}
+
+
+/* « !! » dans le liseré, centré verticalement */
+.carte.don::before {
+  content: "!!"; /* Deux points d'exclamation */
+  position: absolute; /* Placé par-dessus le liseré */
+  top: 0; /* Du haut… */
+  bottom: 0; /* …jusqu'en bas de la vignette */
+  left: calc(-1 * var(--largeur-lisere)); /* Sur le liseré */
+  width: var(--largeur-lisere); /* Largeur du liseré */
+  display: flex; /* Texte centré */
+  align-items: center; /* Centré verticalement */
+  justify-content: center; /* Centré horizontalement */
+  color: var(--blanc); /* Couleur du texte */
+  font-size: 0.6rem; /* Taille du texte */
+  letter-spacing: -0.05em; /* Points d'exclamation rapprochés */
+}
+
+
+/* Pastille DON!! : texte centré */
+.carte.don .carte-pastille {
+  display: flex; /* Texte centré */
+  align-items: center; /* Centré verticalement */
+  justify-content: center; /* Centré horizontalement */
+}
+
+
+/* « !! » dans la pastille */
+.carte.don .carte-pastille::after {
+  content: "!!"; /* Deux points d'exclamation */
+  color: var(--blanc); /* Couleur du texte */
+  font-size: 0.5rem; /* Taille du texte */
+  line-height: 1; /* Interligne serré */
+  letter-spacing: -0.05em; /* Points d'exclamation rapprochés */
+}
+
+
+/* DON!! non collectionnée : « !! » grisés */
+.carte.don:not(.collectionnee)::before,
+.carte.don:not(.collectionnee) .carte-pastille::after {
+  color: var(--don-non-collectionnee); /* Gris */
+}
+
+
+/* ====================================================================================== */
+
+
+/* ▶ Onglet « Cartes » : pastilles scintillantes selon la rareté ==== */
+
+
+/* Pastille scintillante : repère du reflet, découpé en rond, symbole centré */
+.carte-pastille[data-eclat] {
+  position: relative; /* Repère pour placer le reflet */
+  overflow: hidden; /* Reflet découpé en rond */
+  display: flex; /* Symbole centré */
+  align-items: center; /* Centré verticalement */
+  justify-content: center; /* Centré horizontalement */
+}
+
+
+/* Reflet de la pastille (forme, vitesse et intensité réglées par rareté plus bas) */
+.carte-pastille[data-eclat]::before {
+  content: ""; /* Élément vide */
+  position: absolute; /* Par-dessus la couleur de la pastille */
+  inset: 0; /* Toute la pastille */
+  border-radius: 50%; /* Rond */
+  background: var(--eclat-fond); /* Reflet de la rareté */
+  background-size: var(--eclat-taille, 300% 300%); /* Reflet plus grand que la pastille pour le balayage */
+  animation: eclat-balayage var(--eclat-duree, 3s) linear infinite; /* Balayage en boucle */
+  pointer-events: none; /* Ne gêne pas les clics */
+}
+
+
+/* Symbole de la pastille (« !! » des DON!!, étoile, TR, SP) : au-dessus du reflet */
+.carte-pastille[data-eclat]::after {
+  position: relative; /* Placé dans l'ordre d'empilement */
+  z-index: 1; /* Au-dessus du reflet */
+}
+
+
+/* Étoile : Textured Foil, Full Art, Alternate Art, Manga Art */
+.carte-pastille:is([data-eclat="textured-foil"], [data-eclat="alternate-art"], [data-eclat="manga-art"])::after {
+  content: "★"; /* Étoile */
+  font-size: 0.55rem; /* Taille */
+}
+
+
+/* Lettres : Treasure Rare et Special Card */
+.carte-pastille[data-eclat="treasure-rare"]::after { content: "TR"; } /* Treasure Rare */
+.carte-pastille[data-eclat="special-card"]::after { content: "SP"; } /* Special Card */
+.carte-pastille:is([data-eclat="treasure-rare"], [data-eclat="special-card"])::after {
+  font-size: 0.4rem; /* Taille */
+  font-weight: 700; /* Gras */
+  letter-spacing: -0.05em; /* Lettres rapprochées */
+}
+
+
+/* Couleur commune de l'étoile et des lettres, lisible sur toutes les couleurs */
+.progression-serie:is([data-eclat="textured-foil"], [data-eclat="alternate-art"], [data-eclat="manga-art"], [data-eclat="treasure-rare"], [data-eclat="special-card"])::after {
+  color: var(--blanc); /* Blanc */
+  line-height: 1; /* Pas d'interligne */
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.9); /* Contour sombre (lisible sur le jaune) */
+}
+
+
+/* DON!! (gold) : reflet blanc franc */
+.carte-pastille[data-eclat="don-gold"] {
+  --eclat-fond: linear-gradient(135deg, transparent 40%, var(--eclat-clair) 50%, transparent 60%); /* Bande blanche */
+  --eclat-duree: 2.5s; /* Vitesse */
+}
+
+
+/* DON!! (foil) : double reflet */
+.carte-pastille[data-eclat="don-foil"] {
+  --eclat-fond: linear-gradient(135deg, transparent 32%, var(--eclat-clair) 40%, transparent 46%, var(--eclat-clair) 54%, transparent 62%); /* Deux bandes */
+  --eclat-duree: 2.5s; /* Vitesse */
+}
+
+
+/* Rare : reflet blanc discret et lent */
+.carte-pastille[data-eclat="rare"] {
+  --eclat-fond: linear-gradient(135deg, transparent 42%, rgba(255, 250, 240, 0.45) 50%, transparent 58%); /* Bande fine et pâle */
+  --eclat-duree: 4s; /* Vitesse */
+}
+
+
+/* Super Rare : reflet blanc franc */
+.carte-pastille[data-eclat="super-rare"] {
+  --eclat-fond: linear-gradient(135deg, transparent 40%, var(--eclat-clair) 50%, transparent 60%); /* Bande blanche */
+  --eclat-duree: 2.5s; /* Vitesse */
+}
+
+
+/* Pirate Foil : double reflet */
+.carte-pastille[data-eclat="pirate-foil"] {
+  --eclat-fond: linear-gradient(135deg, transparent 32%, var(--eclat-clair) 40%, transparent 46%, var(--eclat-clair) 54%, transparent 62%); /* Deux bandes */
+  --eclat-duree: 2s; /* Vitesse */
+}
+
+
+/* Textured Foil : rayures fines et reflet (étoile) */
+.carte-pastille[data-eclat="textured-foil"] {
+  --eclat-fond: linear-gradient(135deg, transparent 40%, var(--eclat-clair) 50%, transparent 60%), repeating-linear-gradient(45deg, rgba(255, 250, 240, 0.25) 0 1px, transparent 1px 3px); /* Bande blanche sur rayures fines */
+  --eclat-taille: 300% 300%, auto; /* Bande agrandie, rayures à taille réelle */
+  --eclat-duree: 3s; /* Vitesse */
+}
+
+
+/* Full Art : reflet large (étoile) */
+.carte-pastille[data-eclat="full-art"] {
+  --eclat-fond: linear-gradient(135deg, transparent 30%, var(--eclat-clair) 50%, transparent 70%); /* Bande large */
+  --eclat-duree: 3s; /* Vitesse */
+}
+
+
+/* Secret Rare : reflet blanc franc et rapide */
+.carte-pastille[data-eclat="secret-rare"] {
+  --eclat-fond: linear-gradient(135deg, transparent 40%, var(--eclat-clair) 50%, transparent 60%); /* Bande blanche */
+  --eclat-duree: 2s; /* Vitesse */
+}
+
+
+/* Alternate Art : reflet large (étoile) */
+.carte-pastille[data-eclat="alternate-art"] {
+  --eclat-fond: linear-gradient(135deg, transparent 30%, var(--eclat-clair) 50%, transparent 70%); /* Bande large */
+  --eclat-duree: 2.5s; /* Vitesse */
+}
+
+
+/* Treasure Rare : reflet blanc franc et rapide (TR) */
+.carte-pastille[data-eclat="treasure-rare"] {
+  --eclat-fond: linear-gradient(135deg, transparent 40%, var(--eclat-clair) 50%, transparent 60%); /* Bande blanche */
+  --eclat-duree: 2s; /* Vitesse */
+}
+
+
+/* Special Card : double reflet rapide (SP) */
+.carte-pastille[data-eclat="special-card"] {
+  --eclat-fond: linear-gradient(135deg, transparent 32%, var(--eclat-clair) 40%, transparent 46%, var(--eclat-clair) 54%, transparent 62%); /* Deux bandes */
+  --eclat-duree: 2s; /* Vitesse */
+}
+
+
+/* Manga Art : reflet large et rapide (étoile) */
+.carte-pastille[data-eclat="manga-art"] {
+  --eclat-fond: linear-gradient(135deg, transparent 30%, var(--eclat-clair) 50%, transparent 70%); /* Bande large */
+  --eclat-duree: 2s; /* Vitesse */
+}
+
+
+/* Animation de balayage : bande blanche qui traverse la pastille en diagonale */
+@keyframes eclat-balayage {
+  from { background-position: 100% 100%; } /* Bande en haut à gauche, hors de la pastille */
+  to { background-position: 0 0; } /* Bande en bas à droite, hors de la pastille */
+}
+
+
+/* Animations réduites dans les réglages du système : reflet fixe au centre */
+@media (prefers-reduced-motion: reduce) {
+  .carte-pastille[data-eclat]::before {
+    animation: none; /* Pas d'animation */
+    background-position: 50% 50%; /* Bande au centre */
+  }
+}
+
+
+/* ====================================================================================== */
+
+
+/* ▶ Onglet « Séries » ==== */
+
+
+/* Onglet */
+#onglet-series {
+  margin-top: 1.5rem; /* Marge en haut */
+}
+
+
+/* Conteneur du tableau */
+.tableau-conteneur {
+  overflow-x: auto; /* Défilement horizontal si le tableau est plus large que l'écran */
+}
+
+
+/* Tableau */
+.tableau-series {
+  width: 100%; /* Toute la largeur */
+  border-collapse: collapse; /* Bordures des cellules fusionnées */
+  background: var(--bleu-roi); /* Couleur du fond */
+}
+
+
+/* Cellules */
+.tableau-series th,
+.tableau-series td {
+  padding: 0.6rem 0.8rem; /* Marge intérieure (haut/bas, gauche/droite) */
+  text-align: left; /* Texte aligné à gauche */
+  white-space: nowrap; /* Pas de retour à la ligne */
+  border-bottom: 1px solid var(--gris); /* Séparation discrète entre les lignes */
+}
+
+
+/* Colonnes centrées : Sortie à Langues (3e à 8e), Crayon, Langue et Cartes (10e à 12e) */
+.tableau-series th:nth-child(n+3):nth-child(-n+8),
+.tableau-series td:nth-child(n+3):nth-child(-n+8),
+.tableau-series th:nth-child(n+10),
+.tableau-series td:nth-child(n+10) {
+  text-align: center; /* Contenu centré */
+}
+
+
+/* En-têtes */
+.tableau-series th {
+  color: var(--blanc); /* Couleur du texte */
+  font-weight: 700; /* Gras */
+}
+
+
+/* Ligne au survol */
+.tableau-series tbody tr:hover {
+  background: rgba(255, 250, 240, 0.05); /* Fond légèrement éclairci */
+}
+
+
+/* Flèche vers les cartes de la série */
+.bouton-voir-serie {
+  display: inline-flex; /* Dimensions respectées */
+  padding: 0.2rem; /* Marge intérieure (zone de clic un peu plus grande) */
+  border: none; /* Aucune bordure */
+  background: none; /* Aucun fond */
+  color: var(--blanc); /* Couleur de la flèche */
+  opacity: 0.6; /* Légèrement estompée */
+}
+
+
+/* Taille de la flèche */
+.bouton-voir-serie .icone {
+  width: 1.3rem; /* Largeur */
+  height: 1.3rem; /* Hauteur */
+}
+
+
+/* Identifiant de la série */
+.serie-id {
+  font-weight: 700; /* Gras */
+}
+
+
+/* Espace entre les drapeaux des langues disponibles */
+.serie-langues .drapeau + .drapeau {
+  margin-left: 0.3rem; /* Espace à gauche du drapeau suivant */
+}
+
+
+/* Barre de progression et pourcentage */
+.progression-serie {
+  display: flex; /* Côte à côte */
+  align-items: center; /* Centrés verticalement */
+  gap: 0.6rem; /* Espace entre la barre et le pourcentage */
+  min-width: 200px; /* Largeur minimale */
+}
+
+
+/* Badge « Équipage complet ! » : centré par-dessus la barre, sans décaler la ligne */
+.progression-serie .badge-conquise {
+  position: absolute; /* Posé sur la barre, hors du flux */
+  top: 50%; /* Centré verticalement */
+  left: 50%; /* Centré horizontalement */
+  transform: translate(-50%, -50%); /* Recentrage exact */
+  min-width: 0; /* Annule la largeur fixe du pourcentage */
+  padding: 0.1rem 0.5rem; /* Marge intérieure (haut/bas, gauche/droite) */
+  border: 0px solid var(--blanc); /* Cadre clair, visible sur la barre pleine */
+  border-radius: 999px; /* Bords arrondis */
+  background: var(--bleu-electrique); /* Fond bleu */
+  height: 1.1rem; /* Hauteur du badge (à régler) */
+  color: var(--blanc); /* Texte clair */
+  font-size: 0.75rem; /* Taille du texte */
+  font-weight: 700; /* Gras */
+  text-align: center; /* Texte centré */
+  white-space: nowrap; /* Sur une seule ligne */
+}
+
+
+/* Barre de progression : repère pour placer le badge */
+.progression-serie .barre {
+  position: relative; /* Repère du badge */
+  flex: 1; /* Prend toute la place restante */
+  height: 0.6rem; /* Hauteur de la barre */
+  background: var(--gris); /* Fond de la barre */
+}
+
+
+/* Barre de progression (partie remplie) */
+.progression-serie .barre-remplie {
+  height: 100%; /* Toute la hauteur de la barre */
+  background: var(--bleu-electrique); /* Couleur de la progression */
+}
+
+
+/* Pourcentage */
+.progression-serie span {
+  min-width: 3.5em; /* Largeur fixe (barres alignées d'une ligne à l'autre) */
+  text-align: right; /* Aligné à droite */
+  font-weight: 600; /* Semi-gras */
+}
+
+
+/* Symboles de série (crayon et drapeau) */
+.symbole {
+  display: block; /* Dimensions respectées */
+  width: 1.3rem; /* Largeur de l'icône */
+  height: 1.3rem; /* Hauteur de l'icône */
+  margin: 0 auto; /* Centré dans sa cellule */
+  color: var(--bleu-electrique); /* Icône bleue */
+}
+
+
+/* ====================================================================================== */
+
+
+/* ▶ Onglet « À propos » ==== */
+
+
+/* Onglet : blocs sur une seule colonne */
+#onglet-apropos {
+  display: grid; /* Disposition en grille */
+  grid-template-columns: 1fr; /* Une seule colonne */
+  gap: 1.5rem; /* Espace entre les blocs */
+  margin-top: 1.5rem; /* Marge en haut */
+}
+
+
+/* Bloc */
+.apropos-bloc {
+  padding: 1.25rem 1.5rem; /* Marge intérieure (haut/bas, gauche/droite) */
+  background: var(--bleu-roi); /* Couleur du fond */
+  line-height: 1.5; /* Interligne */
+}
+
+
+/* Titre du bloc */
+.apropos-bloc h3 {
+  margin: 0 0 0.75rem; /* Marge en bas uniquement */
+  font-size: 1.2rem; /* Taille du texte */
+  color: var(--blanc); /* Couleur du texte */
+}
+
+
+/* Paragraphes */
+.apropos-bloc p {
+  margin: 0 0 0.6rem; /* Marge en bas uniquement */
+}
+
+
+/* Lien */
+.apropos-bloc a {
+  color: var(--bleu-electrique); /* Couleur du lien */
+  text-decoration: none; /* Pas de soulignement */
+}
+
+
+/* ====================================================================================== */
+
+
+/* ▶ Onglet « Cartes » : aperçu des visuels au survol de la loupe ==== */
+
+
+/* Fenêtre d'aperçu : posée par-dessus la page, à côté de la loupe survolée, toutes les versions sur une seule ligne */
+.apercu-carte {
+  position: fixed; /* Placée par app.js selon la position de la loupe */
+  z-index: 10; /* Au-dessus de tout le reste */
+  display: flex; /* Visuels côte à côte */
+  flex-wrap: nowrap; /* Toujours sur une seule ligne */
+  gap: 0.5rem; /* Espace entre les visuels */
+  max-width: 95vw; /* Sans dépasser la largeur de la fenêtre */
+  padding: 0.5rem; /* Marge intérieure */
+  background: var(--bleu-roi); /* Fond bleu nuit */
+  border: 1px solid var(--gris); /* Bordure discrète */
+  border-radius: 8px; /* Coins arrondis */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); /* Ombre portée */
+  pointer-events: none; /* Ne gêne pas la souris */
+}
+
+
+/* Visuel d'une version : taille moyenne, réduit si besoin pour que tous tiennent sur la ligne (format des cartes conservé) */
+.apercu-carte img {
+  display: block; /* Dimensions respectées */
+  flex: 0 1 var(--largeur-apercu); /* Largeur souhaitée, réduite si la ligne est trop longue */
+  min-width: 0; /* Autorise la réduction */
+  max-height: 85vh; /* Sans dépasser la hauteur de la fenêtre */
+  aspect-ratio: 600 / 838; /* Format d'une carte */
+  object-fit: contain; /* Visuel entier, sans déformation */
+  border-radius: 6px; /* Coins arrondis */
+}
+
+
+/* ====================================================================================== */
+
+
+/* ▶ Avis de recherche (clic sur le logo) ==== */
+
+
+/* Fond sombre par-dessus la page, affiche centrée */
+.avis-fond {
+  position: fixed; /* Par-dessus la page */
+  inset: 0; /* Toute la fenêtre */
+  z-index: 20; /* Au-dessus de l'aperçu des visuels */
+  display: flex; /* Affiche centrée */
+  align-items: center; /* Centrée verticalement */
+  justify-content: center; /* Centrée horizontalement */
+  padding: 1rem; /* Marge autour de l'affiche */
+  background: rgba(0, 0, 0, 0.7); /* Fond assombri */
+}
+
+
+/* Affiche : parchemin encadré, à l'ancienne */
+.avis-poster {
+  position: relative; /* Repère pour la croix de fermeture */
+  width: min(360px, 90vw); /* Largeur, sans dépasser l'écran */
+  max-height: 90vh; /* Hauteur maximale */
+  overflow-y: auto; /* Défilement si l'écran est trop petit */
+  padding: 1.5rem; /* Marge intérieure */
+  background: var(--parchemin); /* Fond parchemin */
+  color: var(--encre); /* Texte couleur encre */
+  border: 6px double var(--encre); /* Double cadre */
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 0 40px rgba(58, 39, 23, 0.35); /* Ombre portée et bords vieillis */
+  text-align: center; /* Texte centré */
+  animation: avis-apparition 0.35s ease; /* Apparition */
+}
+
+
+/* Animation d'apparition : l'affiche se déplie */
+@keyframes avis-apparition {
+  from { transform: scale(0.85) rotate(-3deg); opacity: 0; } /* Petite et penchée */
+  to { transform: scale(1) rotate(0); opacity: 1; } /* Taille normale */
+}
+
+
+/* Croix de fermeture */
+.avis-fermer {
+  position: absolute; /* En haut à droite de l'affiche */
+  top: 0.4rem; /* Haut */
+  right: 0.6rem; /* Droite */
+  padding: 0; /* Aucune marge intérieure */
+  border: none; /* Aucune bordure */
+  background: none; /* Aucun fond */
+  color: var(--encre); /* Couleur encre */
+  font-size: 1.2rem; /* Taille */
+  cursor: pointer; /* Curseur en forme de main */
+}
+
+
+/* Titre « WANTED » */
+.avis-titre {
+  margin: 0; /* Aucune marge */
+  font-family: var(--police-titre); /* Police du titre */
+  font-size: 3.5rem; /* Taille */
+  line-height: 1; /* Interligne serré */
+  letter-spacing: 0.05em; /* Espace entre les lettres */
+}
+
+
+/* Mention « DEAD OR ALIVE » */
+.avis-mention {
+  margin: 0.25rem 0 1rem; /* Marges (haut, côtés, bas) */
+  font-family: var(--police-titre); /* Police du titre */
+  font-size: 1rem; /* Taille */
+  letter-spacing: 0.15em; /* Lettres espacées */
+}
+
+
+/* Portrait : avis de recherche du personnage équivalent (ou logo du site), dans un cadre */
+.avis-portrait {
+  display: block; /* Dimensions respectées */
+  height: 15rem; /* Hauteur fixe : l'affiche ne bouge pas quand l'image change */
+  max-width: 80%; /* Largeur maximale */
+  margin: 0 auto 1rem; /* Centré, marge en bas */
+  object-fit: contain; /* Image entière, sans déformation */
+  border: 3px solid var(--encre); /* Cadre */
+  background: rgba(58, 39, 23, 0.1); /* Parchemin légèrement assombri (visible autour du logo par défaut) */
+}
+
+
+/* Nom de l'utilisateur */
+.avis-nom {
+  margin: 0; /* Aucune marge */
+  font-family: var(--police-titre); /* Police du titre */
+  font-size: 1.6rem; /* Taille */
+  word-break: break-word; /* Nom long coupé si besoin */
+}
+
+
+/* Montant de la prime (chiffres de largeur fixe : le défilement ne fait pas trembler le texte) */
+.avis-montant {
+  margin: 0.5rem 0; /* Marges haut et bas */
+  font-family: var(--police-titre); /* Police du titre */
+  font-size: 1.8rem; /* Taille maximale (réduite par app.js si le montant est trop long) */
+  font-variant-numeric: tabular-nums; /* Chiffres de même largeur */
+  white-space: nowrap; /* Jamais coupé sur deux lignes */
+}
+
+
+/* Personnage équivalent et progression */
+.avis-equivalente,
+.avis-progression {
+  margin: 0.295rem 0 0; /* Marge en haut */
+  font-size: 0.85rem; /* Taille */
+}
+
+
+/* Nom du personnage équivalent, en gros */
+.avis-personnage {
+  margin: 0.1rem 0 1rem; /* Marges (haut, côtés, bas) : espace marqué avant la progression */
+  font-family: var(--police-titre); /* Police du titre */
+  font-size: 1.3rem; /* Taille */
+  line-height: 1.2; /* Interligne (noms longs sur deux lignes) */
+}
+
+
+/* Animations réduites dans les réglages du système : ni saut du logo ni apparition animée */
+@media (prefers-reduced-motion: reduce) {
+  .bouton-logo.saute .logo,
+  .avis-poster {
+    animation: none; /* Pas d'animation */
+  }
+}
+
+
+/* ====================================================================================== */
+
+
+/* ▶ Survols ==== */
+
+
+/* Changements progressifs au survol */
+button, #choix-tri, .filtre summary, .filtre .filtre-options label, .filtre-icones .icone, .lien-logo, .carte-loupe, .apropos-bloc a {
+  transition: color 0.15s, opacity 0.15s, border-color 0.15s, filter 0.15s, background-color 0.15s; /* Transition rapide */
+}
+
+
+/* Survols actifs uniquement avec une souris (pas d'effet « collé » sur téléphone) */
+@media (hover: hover) {
+
+
+  /* Bouton de connexion : rouge plus clair */
+  .bouton-principal:hover {
+    filter: brightness(1.15); /* Plus clair */
+  }
+
+
+  /* Bouton Voir/Cacher : fond bleu */
+  .champ-mot-de-passe button:hover {
+    background: var(--bleu-electrique); /* Fond bleu */
+    border-color: var(--bleu-electrique); /* Bordure bleue */
+    color: var(--blanc); /* Texte clair */
+  }
+
+
+  /* Onglet non sélectionné : plus visible et souligné en gris */
+  .onglet:not(.actif):hover {
+    opacity: 0.9; /* Plus visible */
+    border-bottom-color: var(--gris); /* Soulignement discret */
+  }
+
+
+  /* Logo : plus lumineux */
+  .bouton-logo:hover .logo {
+    filter: brightness(1.15); /* Plus lumineux */
+  }
+
+
+  /* Croix de l'avis de recherche : rouge */
+  .avis-fermer:hover {
+    color: var(--rouge); /* Rouge */
+  }
+
+
+  /* Bouton de déconnexion : rouge */
+  #bouton-deconnexion:hover {
+    color: var(--rouge); /* Rouge */
+  }
+
+
+  /* Nom d'un filtre et option de filtre : bleu */
+  .filtre summary:hover,
+  .filtre .filtre-options label:hover {
+    color: var(--bleu-electrique); /* Bleu */
+  }
+
+
+  /* Boutons rouges (réinitialiser les filtres, vider le panier) : plus clairs */
+  .bouton-reinitialiser:hover,
+  .bouton-vider-panier:hover {
+    filter: brightness(1.35); /* Plus clair */
+  }
+
+
+  /* Liste de tri : bordure bleue */
+  #choix-tri:hover {
+    border-color: var(--bleu-electrique); /* Bordure bleue */
+  }
+
+
+  /* Icône de filtre non activée : moins estompée */
+  .filtre-icones label:hover input:not(:checked) + .icone {
+    opacity: 0.7; /* Moins estompée */
+  }
+
+
+  /* Flèche de pagination active : bleue */
+  .pagination button:not(:disabled):hover {
+    color: var(--bleu-electrique); /* Bleu */
+  }
+
+
+  /* Drapeau ou caddie non activé d'une vignette : moins estompé */
+  .carte-boutons button:not(:disabled):not(.actif):hover {
+    opacity: 0.7; /* Moins estompé */
+  }
+
+
+  /* Caddie d'une vignette : rouge (annonce l'ajout ou le retrait du panier) */
+  .carte-boutons button.panier:not(:disabled):hover {
+    color: var(--rouge); /* Rouge */
+  }
+
+
+  /* Flèche vers les cartes d'une série : bleue et bien visible */
+  .bouton-voir-serie:hover {
+    color: var(--bleu-electrique); /* Bleue */
+    opacity: 1; /* Bien visible */
+  }
+
+
+  /* Loupe de recherche Cardmarket : bleue et bien visible */
+  .carte-loupe:hover {
+    color: var(--bleu-electrique); /* Bleue */
+    opacity: 1; /* Bien visible */
+  }
+
+
+  /* Lien de l'onglet « À propos » : souligné */
+  .apropos-bloc a:hover {
+    text-decoration: underline; /* Souligné */
+  }
+
+
+}
+
+
+/* ====================================================================================== */
+
+
+/* ▶ Petit écran (largeur de bascule à modifier dans la ligne @media) ==== */
+
+
+@media (max-width: 700px) {
+
+
+  /* En-tête centré */
+  .en-tete {
+    justify-content: center; /* Éléments centrés */
+  }
+  
+
+  /* Une seule colonne : barre latérale au-dessus du classeur */
+  .mise-en-page {
+    grid-template-columns: 1fr; /* Une seule colonne */
+  }
+  
+
+  /* Barre latérale non fixée */
+  .barre-outils {
+    position: static; /* Défile avec la page */
+  }
+
+
+  /* Une page du classeur sous l'autre */
+  #grille-cartes {
+    grid-template-columns: 1fr; /* Une seule colonne */
+  }
+
+
+  /* Pages sans marge sur les côtés */
+  .page-classeur {
+    padding: 0; /* Aucune marge intérieure */
+  }
+
+
+  /* Reliure horizontale entre les deux pages */
+  .page-classeur + .page-classeur {
+    border-left: none; /* Plus de reliure verticale */
+    border-top: 3px solid var(--bleu-electrique); /* Reliure horizontale bleue */
+    padding-top: 1rem; /* Espace sous la reliure */
+    margin-top: 1rem; /* Espace au-dessus de la reliure */
+  }
+  
+
+}
+
+
+/* ====================================================================================== */
