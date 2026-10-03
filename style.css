@@ -403,6 +403,12 @@ button {
 }
 
 
+/* Cartes collectionnées / total : téléphone uniquement */
+#compteur-cartes {
+  display: none; /* Invisible sur ordinateur */
+}
+
+
 /* Date de mise à jour */
 #maj {
   opacity: 0.6; /* Légèrement estompée */  
@@ -529,6 +535,12 @@ button {
   padding: 0.45rem; /* Marge intérieure */
   margin: 0.45rem 0; /* Marge extérieure en haut et en bas */
   border: none; /* Aucune bordure */
+}
+
+
+/* Bouton des filtres : téléphone uniquement */
+.bouton-filtres {
+  display: none; /* Invisible sur ordinateur */
 }
 
 
@@ -839,7 +851,7 @@ button {
 
 
 /* Vignette non collectionnée : texte estompé (boutons et pastilles non concernés) */
-.carte:not(.collectionnee) > :not(.carte-boutons):not(.carte-pastilles):not(.carte-loupe) {
+.carte:not(.collectionnee) > :not(.carte-boutons):not(.carte-pastilles):not(.carte-loupe):not(.bouton-apercu) {
   opacity: var(--opacite-non-collectionnee); /* Estompé */
 }
 
@@ -925,6 +937,28 @@ button {
   display: block; /* Dimensions respectées */
   width: 1.4em; /* Largeur du caddie */
   height: 1.4em; /* Hauteur du caddie */
+}
+
+
+/* Œil de l'aperçu plein écran : à gauche de la loupe, même aspect, masqué avec une souris (aperçu au survol de la loupe), affiché sur écran tactile (voir plus bas) */
+.bouton-apercu {
+  position: absolute; /* Placé par-dessus la vignette */
+  z-index: 1; /* Au premier plan */
+  top: 2rem; /* À hauteur de la loupe */
+  right: 2rem; /* À gauche de la loupe */
+  display: none; /* Invisible */
+  padding: 0; /* Aucune marge intérieure */
+  border: none; /* Aucune bordure */
+  background: none; /* Aucun fond */
+  color: var(--blanc); /* Couleur de la loupe */
+  opacity: var(--opacite-inactif); /* Estompé comme la loupe */
+}
+
+
+/* Taille de l'œil (celle de la loupe) */
+.bouton-apercu .icone {
+  width: 1rem; /* Largeur */
+  height: 1rem; /* Hauteur */
 }
 
 
@@ -1455,6 +1489,37 @@ button {
 }
 
 
+/* Aperçu plein écran (bouton œil) : fond sombre, visuels sur une colonne (un seul visuel) ou deux colonnes, défilement vertical */
+.apercu-carte.plein-ecran {
+  inset: 0; /* Toute la fenêtre */
+  max-width: none; /* Annule la largeur maximale */
+  display: grid; /* Disposition en grille */
+  grid-template-columns: minmax(0, 1fr); /* Une colonne */
+  align-content: safe center; /* Centrés verticalement, haut visible si la liste est longue */
+  gap: 0.5rem; /* Espace entre les visuels */
+  padding: 0.5rem; /* Marge intérieure */
+  overflow-y: auto; /* Défilement vertical */
+  overscroll-behavior: contain; /* Le défilement ne se propage pas à la page */
+  background: rgba(0, 0, 0, 0.85); /* Fond assombri */
+  border: none; /* Aucune bordure */
+  border-radius: 0; /* Aucun arrondi */
+  pointer-events: auto; /* Cliquable (toucher pour fermer) */
+}
+
+
+/* Deux visuels ou plus : deux colonnes */
+.apercu-carte.plein-ecran:has(img + img) {
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* Deux colonnes de même largeur */
+}
+
+
+/* Visuel : toute la largeur de sa colonne, format des cartes conservé */
+.apercu-carte.plein-ecran img {
+  width: 100%; /* Largeur de la colonne */
+  justify-self: center; /* Centré dans sa colonne */
+}
+
+
 /* ====================================================================================== */
 
 
@@ -1693,8 +1758,9 @@ button, #choix-tri, .filtre summary, .filtre .filtre-options label, .filtre-icon
   }
 
 
-  /* Loupe de recherche Cardmarket : bleue et bien visible */
-  .carte-loupe:hover {
+  /* Loupe de recherche Cardmarket et œil de l'aperçu : bleus et bien visibles */
+  .carte-loupe:hover,
+  .bouton-apercu:hover {
     color: var(--bleu-electrique); /* Bleue */
     opacity: 1; /* Bien visible */
   }
@@ -1712,16 +1778,61 @@ button, #choix-tri, .filtre summary, .filtre .filtre-options label, .filtre-icon
 /* ====================================================================================== */
 
 
+/* ▶ Écran tactile ou petit écran : œil de l'aperçu plein écran ==== */
+
+
+@media (hover: none), (max-width: 700px) {
+
+  /* Œil affiché */
+  .bouton-apercu {
+    display: flex; /* Visible */
+  }
+
+}
+
+
+/* ====================================================================================== */
+
+
 /* ▶ Petit écran (largeur de bascule à modifier dans la ligne @media) ==== */
 
 
 @media (max-width: 700px) {
 
 
-  /* En-tête centré */
-  .en-tete {
-    justify-content: center; /* Éléments centrés */
+  /* Écran : marges réduites, cartes sur presque toute la largeur */
+  #ecran-application {
+    padding: 0.75rem 0.5rem; /* Marge intérieure (haut/bas, gauche/droite) */
   }
+
+
+  /* En-tête : logo, titre et déconnexion sur une ligne, onglets en dessous */
+  .en-tete {
+    justify-content: flex-start; /* Aligné à gauche */
+    gap: 0.6rem; /* Espace réduit */
+  }
+  .logo { height: 3rem; } /* Logo réduit */
+  .en-tete .titre { font-size: 2rem; } /* Titre réduit */
+  .en-tete-titre { flex: 1; min-width: 0; } /* Place restante, devise sur deux lignes si besoin */
+  .en-tete-utilisateur { order: 1; align-self: flex-start; } /* Déconnexion juste après le titre, à droite, en haut à hauteur de WANTED */
+  .en-tete-utilisateur > #bouton-deconnexion { font-size: 0.8rem; } /* Déconnexion plus petite */
+  .en-tete-utilisateur { flex-direction: column; align-items: flex-end; gap: 0; } /* Compteur sous la déconnexion, alignés à droite */
+  .en-tete-utilisateur > #compteur-cartes { display: block; font-size: 0.8rem; padding: 0; opacity: 0.7; } /* Cartes collectionnées / total, même taille */
+  .onglets { order: 2; flex-basis: 100%; margin: 0; } /* Onglets sur leur propre ligne */
+  #maj, #utilisateur-email { display: none; } /* Date de mise à jour et email masqués */
+
+
+  /* Prime et logo One Piece masqués */
+  .barre-outils .prime, .lien-logo {
+    display: none !important; /* Invisibles, même filtres ouverts */
+  }
+
+
+  /* Barre au-dessus des cartes : espace réduit */
+  .barre-tri {
+    margin-bottom: 0.5rem; /* Espace sous la barre */
+  }
+  .filtres-ouverts .barre-tri { margin-bottom: 1.25rem; } /* Filtres ouverts : plus d'espace entre « Vider le panier » et les cartes */
   
 
   /* Une seule colonne : barre latérale au-dessus du classeur */
@@ -1730,30 +1841,118 @@ button, #choix-tri, .filtre summary, .filtre .filtre-options label, .filtre-icon
   }
   
 
-  /* Barre latérale non fixée */
+  /* Barre latérale collée en haut de l'écran (recherche toujours visible au-dessus des cartes) */
   .barre-outils {
-    position: static; /* Défile avec la page */
+    top: 0; /* Collée au bord haut */
+    z-index: 5; /* Au-dessus des vignettes (sous l'aperçu et l'avis) */
+    padding: 0.6rem; /* Marge intérieure réduite */
+    gap: 0.6rem; /* Espace réduit */
+    max-height: 85vh; /* Filtres ouverts : sans dépasser l'écran */
+    overflow-y: auto; /* Défilement des filtres ouverts */
   }
 
 
-  /* Une page du classeur sous l'autre */
+  /* Filtres fermés : seule la recherche reste (prime, filtres, réinitialisation, tri et icônes masqués) */
+  .mise-en-page:not(.filtres-ouverts) .barre-outils > :not(.ligne-recherche),
+  .mise-en-page:not(.filtres-ouverts) .barre-tri-gauche {
+    display: none; /* Invisibles */
+  }
+
+
+  /* Recherche en tête de la barre, bouton des filtres à droite */
+  .ligne-recherche {
+    order: -1; /* Avant la prime */
+    display: flex; /* Côte à côte */
+    align-items: center; /* Centrés verticalement */
+    gap: 0.5rem; /* Espace entre le champ et le bouton */
+  }
+
+
+  /* Champ de recherche : toute la place restante, sans libellé (texte d'exemple dans le champ) */
+  .ligne-recherche label { flex: 1; } /* Place restante */
+  .libelle-recherche { display: none; } /* Libellé masqué */
+  #recherche { margin: 0; } /* Aucune marge autour */
+
+
+  /* Bouton des filtres */
+  .bouton-filtres {
+    display: flex; /* Visible, texte et pastille côte à côte */
+    align-items: center; /* Centrés verticalement */
+    gap: 0.4rem; /* Espace entre le texte et la pastille */
+    padding: 0.45rem 0.8rem; /* Marge intérieure */
+    border: 2px solid var(--bleu-electrique); /* Bordure bleue */
+    background: none; /* Aucun fond */
+    color: var(--blanc); /* Couleur du texte */
+    font-weight: 600; /* Semi-gras */
+  }
+
+
+  /* Icône menu du bouton des filtres */
+  .bouton-filtres .icone {
+    width: 1.2rem; /* Largeur */
+    height: 1.2rem; /* Hauteur */
+  }
+
+
+  /* Bouton des filtres ouverts : fond bleu */
+  .bouton-filtres[aria-expanded="true"] {
+    background: var(--bleu-electrique); /* Fond bleu */
+  }
+
+
+  /* Tri sur toute la largeur, icônes de filtre et vider le panier en dessous */
+  .barre-tri-gauche {
+    width: 100%; /* Toute la largeur */
+    flex-wrap: wrap; /* Icônes à la ligne */
+    gap: 0.75rem 1rem; /* Espace (lignes, colonnes) */
+  }
+  #choix-tri { flex-basis: 100%; min-width: 0; } /* Liste de tri sur toute la largeur */
+  .bouton-vider-panier { margin-left: auto; } /* Vider le panier calé à droite */
+
+
+  /* Zone des cartes : un seul bloc (annule la double page de l'ordinateur) */
   #grille-cartes {
+    display: block; /* Toute la largeur */
+  }
+
+
+  /* Cartes les unes sous les autres, sur toute la largeur */
+  .liste-cartes {
+    display: grid; /* Disposition en grille */
     grid-template-columns: 1fr; /* Une seule colonne */
+    gap: 0.35rem; /* Espace entre les vignettes */
   }
 
 
-  /* Pages sans marge sur les côtés */
-  .page-classeur {
-    padding: 0; /* Aucune marge intérieure */
+  /* Repère de fin de liste (déclenche l'ajout du lot suivant) */
+  #suite-liste {
+    height: 1px; /* Présent sans prendre de place */
   }
 
 
-  /* Reliure horizontale entre les deux pages */
-  .page-classeur + .page-classeur {
-    border-left: none; /* Plus de reliure verticale */
-    border-top: 3px solid var(--bleu-electrique); /* Reliure horizontale bleue */
-    padding-top: 1rem; /* Espace sous la reliure */
-    margin-top: 1rem; /* Espace au-dessus de la reliure */
+  /* Vignette sur deux lignes : série, numéro, nom, loupe, œil et pastilles, puis drapeaux, catégorie/rareté/version et caddie */
+  .carte {
+    display: flex; /* Éléments côte à côte */
+    flex-wrap: wrap; /* Deuxième ligne après le saut */
+    align-items: center; /* Centrés verticalement */
+    gap: 0 0.5rem; /* Espace entre les éléments d'une ligne */
+    padding: 0.4rem 0.6rem; /* Marge intérieure réduite */
+  }
+  .carte::after { content: ""; order: 3; flex-basis: 100%; } /* Saut de ligne invisible entre les deux lignes */
+  .carte-loupe, .bouton-apercu, .carte-pastilles { position: static; order: 1; } /* Loupe et œil dans la ligne, après le nom */
+  .carte-pastilles { order: 2; margin-left: 0.4rem; } /* Pastilles en fin de ligne, un peu plus loin de l'œil */
+  .carte-boutons { display: contents; } /* Drapeaux et caddie placés directement dans la vignette */
+  .carte-boutons button { order: 4; margin-top: 0.25rem; } /* Drapeaux en début de deuxième ligne */
+  .carte-infos { order: 5; flex: 1; min-width: 0; margin-top: 0.25rem; font-size: 0.7rem; white-space: normal; } /* Catégorie, rareté et version en entier */
+  .carte-boutons button.panier { order: 6; } /* Caddie en fin de deuxième ligne */
+
+
+  /* Nom : place restante de la première ligne, « … » s'il est trop long */
+  .carte-nom {
+    flex: 1; /* Place restante */
+    min-width: 0; /* Peut rétrécir */
+    height: auto; /* Hauteur libre */
+    -webkit-line-clamp: 1; /* Une seule ligne */
   }
   
 

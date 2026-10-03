@@ -55,6 +55,8 @@
     <symbol id="icone-drapeau" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h13l-3 4.5 3 4.5H5"/></symbol>
     <symbol id="icone-loupe" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16" y2="16"/></symbol>
     <symbol id="icone-fleche" viewBox="0 0 24 24"><line x1="4" y1="12" x2="19" y2="12"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="icone-menu" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></symbol>
+    <symbol id="icone-oeil" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
   </svg>
 
 
@@ -124,6 +126,7 @@
         <span id="maj"></span>
         <span id="utilisateur-email"></span>
         <button type="button" id="bouton-deconnexion">Se déconnecter</button>
+        <span id="compteur-cartes"></span> <!-- Téléphone : cartes collectionnées / total, sous la déconnexion (rempli par app.js) -->
       </div>
 
     </header>
@@ -148,7 +151,11 @@
           <span id="prime-equivalente" class="prime-equivalente"></span>
         </div>
 
-        <label>Recherche <input type="search" id="recherche"></label>
+        <!-- Recherche et bouton des filtres (sur téléphone : seuls visibles, collés en haut de l'écran, le reste s'affiche avec le bouton) -->
+        <div class="ligne-recherche">
+          <label><span class="libelle-recherche">Recherche</span> <input type="search" id="recherche" placeholder="Nom ou numéro de carte"></label>
+          <button type="button" id="bouton-filtres" class="bouton-filtres" aria-expanded="false"><svg class="icone" viewBox="0 0 24 24"><use href="#icone-menu"/></svg>Filtres <span id="compteur-filtres" class="compteur-panier" hidden></span></button>
+        </div>
 
         <details class="filtre" id="filtre-serie"><summary>Série <span class="filtre-resume">Toutes</span></summary><div class="filtre-options"></div></details>
         <details class="filtre" id="filtre-categorie"><summary>Catégorie <span class="filtre-resume">Toutes</span></summary><div class="filtre-options"></div></details>
@@ -361,7 +368,7 @@
     <!-- ====================================================================================================== -->
 
 
-    <!-- Aperçu des visuels d'une carte au survol de sa loupe (rempli et placé par app.js) -->
+    <!-- Aperçu des visuels d'une carte au survol de sa loupe, ou en plein écran avec le bouton œil sur téléphone (rempli et placé par app.js) -->
     <div id="apercu-carte" class="apercu-carte" hidden></div>
 
 

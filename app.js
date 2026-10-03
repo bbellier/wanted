@@ -13,6 +13,8 @@ const TABLE_COLLECTION = "bdd_cartes_collection"; // Table de la collection (mod
 
 // ↳ Classeur ====
 const CARTES_PAR_PAGE = 9; // Cartes par page du classeur, soit le double par double page (à accorder avec --classeur-colonnes dans style.css)
+const CARTES_PAR_LOT = 60; // Téléphone : cartes ajoutées en bas de la liste à l'approche de la fin (pas de pagination)
+const TELEPHONE = matchMedia("(max-width: 700px)"); // Téléphone (largeur à accorder avec la ligne @media « Petit écran » de style.css)
 
 
 // ↳ Prime de collection (primes de référence lues sur One Piece Encyclopédie à chaque connexion) ====
@@ -64,6 +66,7 @@ const TEXTES = {
   voirSerie: "Voir les cartes de la série", // Survol d'une ligne du tableau des séries
   aucunFiltre: "Toutes", // Résumé d'un filtre sans case cochée
   plusieursFiltres: " sélectionnées", // Résumé d'un filtre avec plusieurs cases cochées (précédé du nombre)
+  compteurCartes: (n, total) => `${n} cartes / ${total}`, // Sous la déconnexion sur téléphone
   progression: (n, total) => `Tu as ${total ? Math.round(n / total * 100) : 0} % des cartes (${n}/${total})`, // Progression dans la barre latérale (avec le pourcentage)
   page: (page, nbPages) => `Page ${page} / ${nbPages}`, // Pagination
   primeEquivalente: (nom) => `Ta valeur est équivalente à celle de ${nom} !`, // Personnage dont la prime est la plus proche
@@ -90,6 +93,8 @@ let cartesParCle = {}; // Cartes rangées par clé, pour les retrouver sans parc
 let collection = {}; // Lignes de la collection de l'utilisateur, rangées par clé
 let primes = []; // Primes de référence [personnage, berrys], lues sur One Piece Encyclopédie (la plus haute = 100 % de la collection)
 let page = 1; // Double page affichée
+let nbListe = CARTES_PAR_LOT; // Téléphone : nombre de cartes affichées dans la liste
+const observateurListe = new IntersectionObserver((entrees) => { if (entrees[0].isIntersecting) { nbListe += CARTES_PAR_LOT; afficherCartes(); } }, { rootMargin: "800px" }); // Téléphone : lot suivant quand le bas de la liste approche
 const visuelsTrouves = {}; // Visuels déjà cherchés, par numéro de carte (recherche faite une seule fois)
 let loupeSurvolee = null; // Loupe survolée (un aperçu prêt après la sortie de la souris est ignoré)
 let minuterieAvis = null; // Défilement en cours sur l'avis de recherche (arrêté si l'avis est rouvert ou fermé)
@@ -381,8 +386,8 @@ async function demarrer() {
 }
 
 
-// Afficher à côté de sa loupe les visuels de toutes les versions du numéro de la carte (rien si aucun visuel n'existe) ====
-async function afficherApercu(loupe) {
+// Afficher les visuels de toutes les versions du numéro de la carte, à côté de la loupe survolée ou en plein écran avec le bouton œil (rien si aucun visuel n'existe) ====
+async function afficherApercu(loupe, pleinEcran = false) {
 
   // Visuels de toutes les versions du numéro de la carte, sans les versions promo (ignorés si la souris a quitté la loupe entre-temps)
   loupeSurvolee = loupe;
@@ -393,7 +398,10 @@ async function afficherApercu(loupe) {
   // Remplir l'aperçu : toutes les versions possibles sur une ligne, dans l'ordre de Limitless (l'utilisateur repère la sienne)
   const apercu = element("apercu-carte");
   apercu.innerHTML = visuels.map((adresse) => `<img src="${adresse}" alt="">`).join("");
+  apercu.classList.toggle("plein-ecran", pleinEcran);
+  apercu.style.left = apercu.style.top = ""; // Position du survol précédent effacée
   apercu.hidden = false;
+  if (pleinEcran) return; // Plein écran : centré par style.css, versions qui défilent de gauche à droite
 
   // Placer l'aperçu à droite de la loupe (à gauche s'il n'y a pas la place), sans sortir de la fenêtre
   const zoneLoupe = loupe.getBoundingClientRect(), zoneApercu = apercu.getBoundingClientRect();
@@ -416,6 +424,7 @@ function vignette(carte) {
     <article class="${classes}" data-couleur="${carte._pastilles[0] || ""}" data-couleur-2="${carte._pastilles[1] || ""}">
       <div class="carte-pastilles">${carte._pastilles.map((couleur) => `<span class="carte-pastille" data-couleur="${couleur}"${carte._eclat ? ` data-eclat="${carte._eclat}"` : ""}></span>`).join("")}</div>
       <a class="carte-loupe" href="${RECHERCHE_CARDMARKET(carte)}" target="_blank" rel="noopener" aria-label="Chercher sur Cardmarket" data-numero="${carte.carte_id_court}">${icone(["loupe"])}</a>
+      <button type="button" class="bouton-apercu" data-numero="${carte.carte_id_court}" title="Voir les visuels">${icone(["oeil"])}</button>
       <p class="carte-serie">${carte.serie_id}</p>
       <p class="carte-numero">${carte.carte_id_court}</p>
       <h3 class="carte-nom">${carte.carte_nom}</h3>
@@ -457,6 +466,7 @@ function afficherCartes() {
   // Progression (séries cochées, ou toutes les cartes si aucune série cochée)
   const cartesSeries = cartes.filter((carte) => retenue(series, carte.serie_id));
   element("progression").textContent = TEXTES.progression(cartesSeries.filter(estCollectionnee).length, cartesSeries.length);
+  element("compteur-cartes").textContent = TEXTES.compteurCartes(cartes.filter(estCollectionnee).length, cartes.length); // Toute la collection, quels que soient les filtres
 
   // Prime de collection (toutes les cartes, quels que soient les filtres) et personnage à la prime la plus proche
   ["prime-montant", "prime-equivalente"].forEach((id) => element(id).hidden = primes.length === 0); // Montant et prime équivalente masqués si les primes n'ont pas pu être chargées (progression toujours affichée)
@@ -470,6 +480,19 @@ function afficherCartes() {
   const nbPanier = cartes.filter((carte) => ligneCollection(carte).carte_panier === 1).length;
   element("compteur-panier").textContent = nbPanier;
   element("compteur-panier").hidden = nbPanier === 0;
+
+  // Nombre de filtres cochés sur le bouton des filtres (téléphone, pastille masquée si aucun)
+  const nbFiltres = FILTRES.reduce((n, id) => n + casesCochees(id).length, 0);
+  element("compteur-filtres").textContent = nbFiltres;
+  element("compteur-filtres").hidden = nbFiltres === 0;
+
+  // Téléphone : liste continue sur toute la largeur, prolongée par lots, sans pagination
+  observateurListe.disconnect();
+  if (TELEPHONE.matches) {
+    element("grille-cartes").innerHTML = `<div class="liste-cartes">${cartesAffichees.slice(0, nbListe).map(vignette).join("")}</div>${cartesAffichees.length > nbListe ? `<div id="suite-liste"></div>` : ""}`;
+    if (element("suite-liste")) observateurListe.observe(element("suite-liste"));
+    return element("pagination").hidden = true;
+  }
 
   // Double page en cours
   const nbPages = Math.max(1, Math.ceil(cartesAffichees.length / (2 * CARTES_PAR_PAGE)));
@@ -658,7 +681,8 @@ element("bouton-deconnexion").addEventListener("click", async () => {
 
 
 // Changement de tri, de recherche ou d'icône de filtre (retour à la première double page)
-const filtrer = () => { page = 1; afficherCartes(); };
+const filtrer = () => { page = 1; nbListe = CARTES_PAR_LOT; afficherCartes(); };
+TELEPHONE.addEventListener("change", () => { if (cartes.length) filtrer(); }); // Passage téléphone ↔ ordinateur (rotation, fenêtre redimensionnée) : liste ou classeur
 element("choix-tri").addEventListener("change", filtrer);
 element("recherche").addEventListener("input", filtrer);
 element("filtre-etat").addEventListener("change", filtrer);
@@ -672,6 +696,10 @@ document.querySelector(".barre-outils").addEventListener("change", (evenement) =
   resumerFiltre(filtre.id);
   filtrer();
 });
+
+
+// Bouton des filtres (téléphone) : afficher ou masquer la prime, les filtres, le tri et les icônes
+element("bouton-filtres").addEventListener("click", () => element("bouton-filtres").setAttribute("aria-expanded", element("onglet-cartes").classList.toggle("filtres-ouverts")));
 
 
 // Réinitialiser la recherche et tous les filtres
@@ -700,27 +728,30 @@ element("tableau-series").addEventListener("click", (evenement) => {
 element("bouton-logo").addEventListener("click", ouvrirAvis);
 element("bouton-fermer-avis").addEventListener("click", fermerAvis);
 element("avis-recherche").addEventListener("click", (evenement) => { if (evenement.target === evenement.currentTarget) fermerAvis(); });
-document.addEventListener("keydown", (evenement) => { if (evenement.key === "Escape" && !element("avis-recherche").hidden) fermerAvis(); });
+document.addEventListener("keydown", (evenement) => { if (evenement.key === "Escape") { fermerAvis(); masquerApercu(); } }); // Échap ferme aussi l'aperçu plein écran
 
 
 // Clic sur le bouton pour vider le panier
 element("bouton-vider-panier").addEventListener("click", viderPanier);
 
 
-// Survol de la loupe d'une vignette : aperçu des visuels de la carte, masqué en quittant la loupe ou en faisant défiler la page
+// Survol de la loupe d'une vignette (souris uniquement) : aperçu des visuels de la carte, masqué en quittant la loupe ou en faisant défiler la page
 element("grille-cartes").addEventListener("mouseover", (evenement) => {
   const loupe = evenement.target.closest(".carte-loupe");
-  if (loupe && loupe !== loupeSurvolee) afficherApercu(loupe);
+  if (loupe && loupe !== loupeSurvolee && matchMedia("(hover: hover)").matches) afficherApercu(loupe);
 });
 element("grille-cartes").addEventListener("mouseout", (evenement) => {
   const loupe = evenement.target.closest(".carte-loupe");
   if (loupe && !loupe.contains(evenement.relatedTarget)) masquerApercu();
 });
 window.addEventListener("scroll", masquerApercu, { passive: true });
+element("apercu-carte").addEventListener("click", masquerApercu); // Toucher l'aperçu plein écran le ferme
 
 
-// Clic sur un drapeau ou un caddie d'une vignette
+// Clic sur l'œil (aperçu plein écran), un drapeau ou un caddie d'une vignette
 element("grille-cartes").addEventListener("click", (evenement) => {
+  const oeil = evenement.target.closest(".bouton-apercu");
+  if (oeil) return afficherApercu(oeil, true);
   const bouton = evenement.target.closest("button[data-colonne]");
   if (bouton) basculer(bouton.parentElement.dataset.cle, bouton.dataset.colonne);
 });
