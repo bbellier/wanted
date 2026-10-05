@@ -15,7 +15,7 @@ const TABLE_JOURNAL = "bdd_journal"; // Table des notes du journal de bord (modi
 // ↳ Classeur ====
 const CARTES_PAR_PAGE = 9; // Cartes par page du classeur, soit le double par double page (à accorder avec --classeur-colonnes dans style.css)
 const CARTES_PAR_LOT = 60; // Téléphone : cartes ajoutées en bas de la liste à l'approche de la fin (pas de pagination)
-const TELEPHONE = matchMedia("(max-width: 700px)"); // Téléphone (largeur à accorder avec la ligne @media « Petit écran » de style.css)
+const TELEPHONE = matchMedia("(max-width: 700px), (max-height: 500px) and (orientation: landscape)"); // Téléphone, en portrait (700 px de large au plus) ou en paysage (500 px de haut au plus) : à accorder avec la ligne @media « Petit écran » de style.css
 
 
 // ↳ Prime de collection (primes de référence lues sur One Piece Encyclopédie à chaque connexion) ====
@@ -49,6 +49,11 @@ const RARETES_BRILLANTES = ["DON!! Gold", "DON!! Foil", "Rare", "Super Rare", "P
 const ADRESSE_VISUEL = (numero, suffixe, langue) => `https://limitlesstcg.nyc3.cdn.digitaloceanspaces.com/one-piece/${numero.split("-")[0]}/${numero}${suffixe}_${langue}.webp`; // Visuel sur Limitless TCG (« OP12/OP12-010_EN.webp », versions parallèles « OP12-010_p1_EN.webp »…)
 const VERSIONS_VISUELS = ["", ...Array.from({ length: 12 }, (_, i) => "_p" + (i + 1))]; // Suffixes testés pour chaque numéro : version de base puis versions parallèles _p1 à _p12
 const LANGUES_VISUELS = ["EN", "JP"]; // Langues des visuels, dans l'ordre : le japonais sert de secours pour les cartes pas encore sorties en anglais
+const DOS_CARTES = { // Dos de carte affiché quand aucun visuel n'est trouvé, selon le type de carte
+  don: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrwqsWCUI24YboNQq3dWzCCJaHEFz15lLYxD9bIE3CqUQJDd8o_Cx9tr0&s=10", // DON!!
+  leader: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDUjcY-1znkmsBJJ2AUZ9QCTAGpitIdmqSnZf2o4rFoS4l8Y7MQ4TmV0tI&s=10", // Leader
+  normale: "https://static.opecards.fr/cards/common/back-event.webp" // Toutes les autres cartes
+};
 
 
 // ↳ Recherche Cardmarket (loupe sous les pastilles) ====
@@ -198,6 +203,10 @@ const chercherVisuels = (numero) => visuelsTrouves[numero] ??= (async () => {
   }
   return []; // Aucun visuel
 })();
+
+
+// Type de dos de carte d'une carte (affiché quand aucun visuel n'est trouvé) : « don », « leader » ou « normale »
+const typeDos = (carte) => carte._don ? "don" : String(carte.carte_categorie).toLowerCase() === "leader" ? "leader" : "normale";
 
 
 // Masquer l'aperçu des visuels (sans erreur si le bloc de l'aperçu manque dans index.html)
@@ -413,8 +422,9 @@ async function afficherApercu(loupe, pleinEcran = false) {
   // Visuels de toutes les versions du numéro de la carte, sans les versions promo (ignorés si la souris a quitté la loupe entre-temps)
   loupeSurvolee = loupe;
   const exclus = typeof VISUELS_FILTRES === "undefined" ? new Set() : VISUELS_FILTRES; // Visuels promo à écarter (fichier visuels.js, vide s'il manque)
-  const visuels = (await chercherVisuels(loupe.dataset.numero)).filter((adresse, version) => adresse && !exclus.has(loupe.dataset.numero + VERSIONS_VISUELS[version]));
-  if (loupeSurvolee !== loupe || visuels.length === 0) return;
+  const trouves = (await chercherVisuels(loupe.dataset.numero)).filter((adresse, version) => adresse && !exclus.has(loupe.dataset.numero + VERSIONS_VISUELS[version]));
+  const visuels = trouves.length > 0 ? trouves : [DOS_CARTES[loupe.dataset.type] ?? DOS_CARTES.normale]; // Aucun visuel trouvé : dos de carte selon le type (DON!!, Leader ou autre)
+  if (loupeSurvolee !== loupe) return;
 
   // Remplir l'aperçu : toutes les versions possibles sur une ligne, dans l'ordre de Limitless (l'utilisateur repère la sienne)
   const apercu = element("apercu-carte");
@@ -444,8 +454,8 @@ function vignette(carte) {
   return `
     <article class="${classes}" data-couleur="${carte._pastilles[0] || ""}" data-couleur-2="${carte._pastilles[1] || ""}">
       <div class="carte-pastilles">${carte._pastilles.map((couleur) => `<span class="carte-pastille" data-couleur="${couleur}"${carte._eclat ? ` data-eclat="${carte._eclat}"` : ""}></span>`).join("")}</div>
-      <a class="carte-loupe" href="${RECHERCHE_CARDMARKET(carte)}" target="_blank" rel="noopener" aria-label="Chercher sur Cardmarket" data-numero="${carte.carte_id_court}">${icone(["loupe"])}</a>
-      <button type="button" class="bouton-apercu" data-numero="${carte.carte_id_court}" title="Voir les visuels">${icone(["oeil"])}</button>
+      <a class="carte-loupe" href="${RECHERCHE_CARDMARKET(carte)}" target="_blank" rel="noopener" aria-label="Chercher sur Cardmarket" data-numero="${carte.carte_id_court}" data-type="${typeDos(carte)}">${icone(["loupe"])}</a>
+      <button type="button" class="bouton-apercu" data-numero="${carte.carte_id_court}" data-type="${typeDos(carte)}" title="Voir les visuels">${icone(["oeil"])}</button>
       <p class="carte-serie">${carte.serie_id}</p>
       <p class="carte-numero">${carte.carte_id_court}</p>
       <h3 class="carte-nom">${carte.carte_nom}</h3>
@@ -592,7 +602,7 @@ function ouvrirAvis() {
   clearTimeout(minuterieAvis);
   if (prime === null) return element("avis-montant").textContent = TEXTES.avisSansPrime;
   const paliers = referencesAvecAvis().filter(([, montant]) => montant < prime).sort((a, b) => a[1] - b[1]); // Personnages dont la prime est sous la prime finale, de la plus basse à la plus haute
-  const nbEtapes = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : Math.min(ETAPES_AVIS, paliers.length); // Aucune étape si les animations sont réduites
+  const nbEtapes = TELEPHONE.matches || matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : Math.min(ETAPES_AVIS, paliers.length); // Aucune étape sur téléphone ou si les animations sont réduites : prime estimée affichée directement
   const etapes = [...Array.from({ length: nbEtapes }, (_, i) => paliers[Math.floor(i * paliers.length / nbEtapes)]), prime > 0 ? [referenceProche(prime)[0], prime, referenceProche(prime)[2]] : [null, prime, null]]; // Personnages répartis régulièrement, puis la prime finale
   etapes.forEach(([, , avis]) => { if (avis) new Image().src = avis; }); // Avis de recherche préchargés pour s'afficher sans attente
   const afficherEtape = (i) => {

@@ -17,6 +17,9 @@
   --gris: rgba(255, 250, 240, 0.12); 
   --parchemin: #e8d5a9; /* Fond de l'avis de recherche */
   --encre: #3a2717; /* Texte et cadre de l'avis de recherche */
+  --vivre-card: #f7f4ec; /* Papier blanc des notes du journal de bord (vivre card) */
+  --hauteur-brulure: 2.4rem; /* Hauteur du bord brûlé en haut des notes du journal de bord */
+  --bord-brule: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40' preserveAspectRatio='none'><defs><filter id='f' x='-10%' y='-50%' width='120%' height='200%'><feGaussianBlur stdDeviation='2'/></filter></defs><path d='M0 30L12 22L20 28L30 12L38 20L50 6L60 18L72 10L80 22L95 4L105 17L118 9L128 22L140 7L150 18L162 13L172 25L185 10L200 22V40H0Z' fill='%23f7f4ec'/><path d='M0 30L12 22L20 28L30 12L38 20L50 6L60 18L72 10L80 22L95 4L105 17L118 9L128 22L140 7L150 18L162 13L172 25L185 10L200 22' fill='none' stroke='%23ff7a1a' stroke-width='6' opacity='0.65' filter='url(%23f)'/><path d='M0 30L12 22L20 28L30 12L38 20L50 6L60 18L72 10L80 22L95 4L105 17L118 9L128 22L140 7L150 18L162 13L172 25L185 10L200 22' fill='none' stroke='%23d8321c' stroke-width='2.4' vector-effect='non-scaling-stroke'/><path d='M0 30L12 22L20 28L30 12L38 20L50 6L60 18L72 10L80 22L95 4L105 17L118 9L128 22L140 7L150 18L162 13L172 25L185 10L200 22' fill='none' stroke='%234a1f0e' stroke-width='1' vector-effect='non-scaling-stroke'/></svg>"); /* Bord supérieur brûlé et rougeoyant des vivre cards (dessin étiré sur la largeur) */
 
 
   /* ↳ Couleurs des cartes (liseré gauche et pastilles) */
@@ -192,7 +195,8 @@ button {
 
 /* Écran */
 #ecran-connexion {
-  min-height: 100vh; /* Hauteur minimale : toute la fenêtre */
+  min-height: 100vh; /* Hauteur minimale : toute la fenêtre (anciens navigateurs) */
+  min-height: 100dvh; /* Hauteur réellement visible sur téléphone (barre d'adresse comprise) */
   display: grid; /* Disposition en grille */
   place-items: center; /* Formulaire centré horizontalement et verticalement */
   padding: 1rem; /* Marge intérieure */
@@ -1099,15 +1103,14 @@ button {
 .carte.don .carte-pastille::after {
   content: "!!"; /* Deux points d'exclamation */
   color: var(--blanc); /* Couleur du texte */
-  font-size: 0.5rem; /* Taille du texte */
+  font-size: 0.46rem; /* Taille du texte (un peu sous la moitié du cercle, pour rester bien centré) */
   line-height: 1; /* Interligne serré */
   letter-spacing: -0.05em; /* Points d'exclamation rapprochés */
 }
 
 
-/* DON!! non collectionnée : « !! » grisés */
-.carte.don:not(.collectionnee)::before,
-.carte.don:not(.collectionnee) .carte-pastille::after {
+/* DON!! non collectionnée : « !! » du liseré grisés (ceux de la pastille restent blancs, toujours visibles sur le noir) */
+.carte.don:not(.collectionnee)::before {
   color: var(--don-non-collectionnee); /* Gris */
 }
 
@@ -1151,7 +1154,7 @@ button {
 /* Étoile : Textured Foil, Full Art, Alternate Art, Manga Art */
 .carte-pastille:is([data-eclat="textured-foil"], [data-eclat="alternate-art"], [data-eclat="manga-art"])::after {
   content: "★"; /* Étoile */
-  font-size: 0.55rem; /* Taille */
+  font-size: 0.5rem; /* Taille */
 }
 
 
@@ -1159,14 +1162,14 @@ button {
 .carte-pastille[data-eclat="treasure-rare"]::after { content: "TR"; } /* Treasure Rare */
 .carte-pastille[data-eclat="special-card"]::after { content: "SP"; } /* Special Card */
 .carte-pastille:is([data-eclat="treasure-rare"], [data-eclat="special-card"])::after {
-  font-size: 0.4rem; /* Taille */
+  font-size: 0.36rem; /* Taille */
   font-weight: 700; /* Gras */
   letter-spacing: -0.05em; /* Lettres rapprochées */
 }
 
 
 /* Couleur commune de l'étoile et des lettres, lisible sur toutes les couleurs */
-.progression-serie:is([data-eclat="textured-foil"], [data-eclat="alternate-art"], [data-eclat="manga-art"], [data-eclat="treasure-rare"], [data-eclat="special-card"])::after {
+.carte-pastille:is([data-eclat="textured-foil"], [data-eclat="alternate-art"], [data-eclat="manga-art"], [data-eclat="treasure-rare"], [data-eclat="special-card"])::after {
   color: var(--blanc); /* Blanc */
   line-height: 1; /* Pas d'interligne */
   text-shadow: 0 0 2px rgba(0, 0, 0, 0.9); /* Contour sombre (lisible sur le jaune) */
@@ -1453,17 +1456,17 @@ button {
 }
 
 
-/* Note : papier de pirate, légèrement incliné (angle propre à chaque note, calculé par app.js) */
+/* Note : vivre card (papier blanc au bord brûlé), légèrement inclinée (angle propre à chaque note, calculé par app.js) */
 .note-carte {
   display: flex; /* Éléments empilés */
   flex-direction: column; /* Titre, extrait puis date */
   gap: 0.5rem; /* Espace entre les éléments */
   min-height: 190px; /* Hauteur minimale */
-  padding: 1.1rem 1.2rem; /* Marge intérieure */
-  background: var(--parchemin); /* Fond parchemin */
+  padding: calc(var(--hauteur-brulure) + 0.4rem) 1.2rem 1.1rem; /* Marge intérieure (sous le bord brûlé en haut) */
+  background: var(--bord-brule) top / 100% var(--hauteur-brulure) no-repeat, linear-gradient(var(--vivre-card), var(--vivre-card)) 0 calc(var(--hauteur-brulure) - 1px) / 100% 100% no-repeat; /* Vivre card : bord brûlé en haut, papier blanc dessous */
   color: var(--encre); /* Texte couleur encre */
-  border-radius: 3px 9px 4px 11px; /* Bords irréguliers */
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45), inset 0 0 30px rgba(58, 39, 23, 0.3); /* Ombre portée et bords vieillis */
+  border-radius: 0 0 4px 4px; /* Coins du bas arrondis */
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45)); /* Ombre qui suit le bord brûlé */
   transform: rotate(var(--inclinaison, 0deg)); /* Inclinaison */
   transition: transform 0.2s; /* Redressement progressif au survol */
   cursor: pointer; /* Curseur en forme de main */
@@ -1474,7 +1477,7 @@ button {
 .note-carte-titre {
   margin: 0; /* Aucune marge */
   font-family: var(--police-titre); /* Police du titre */
-  font-size: 1.1rem; /* Taille */
+  font-size: 0.9rem; /* Taille */
   line-height: 1.2; /* Interligne */
   word-break: break-word; /* Titre long coupé si besoin */
 }
@@ -1504,7 +1507,7 @@ button {
 }
 
 
-/* Fenêtre de la note : grand papier de pirate */
+/* Fenêtre de la note : grande vivre card */
 .note-papier {
   position: relative; /* Repère pour la croix de fermeture */
   display: flex; /* Éléments empilés */
@@ -1512,12 +1515,18 @@ button {
   gap: 0.75rem; /* Espace entre les éléments */
   width: min(600px, 92vw); /* Largeur, sans dépasser l'écran */
   max-height: 90vh; /* Hauteur maximale */
-  padding: 1.75rem 1.5rem 1.25rem; /* Marge intérieure */
-  background: var(--parchemin); /* Fond parchemin */
+  padding: calc(var(--hauteur-brulure) + 0.75rem) 1.5rem 1.25rem; /* Marge intérieure (sous le bord brûlé en haut) */
+  background: var(--bord-brule) top / 100% var(--hauteur-brulure) no-repeat, linear-gradient(var(--vivre-card), var(--vivre-card)) 0 calc(var(--hauteur-brulure) - 1px) / 100% 100% no-repeat; /* Grande vivre card : bord brûlé en haut, papier blanc dessous */
   color: var(--encre); /* Texte couleur encre */
-  border: 6px double var(--encre); /* Double cadre */
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 0 40px rgba(58, 39, 23, 0.35); /* Ombre portée et bords vieillis */
+  border-radius: 0 0 6px 6px; /* Coins du bas arrondis */
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.6)); /* Ombre qui suit le bord brûlé */
   animation: avis-apparition 0.35s ease; /* Apparition (même animation que l'avis de recherche) */
+}
+
+
+/* Croix de fermeture de la note : sous le bord brûlé */
+.note-papier .avis-fermer {
+  top: calc(var(--hauteur-brulure) + 0.3rem); /* Juste sous la brûlure */
 }
 
 
@@ -1975,7 +1984,7 @@ button, #choix-tri, .filtre summary, .filtre .filtre-options label, .filtre-icon
 /* ▶ Écran tactile ou petit écran : œil de l'aperçu plein écran ==== */
 
 
-@media (hover: none), (max-width: 700px) {
+@media (hover: none), (max-width: 700px), (max-height: 500px) and (orientation: landscape) {
 
   /* Œil affiché */
   .bouton-apercu {
@@ -1988,10 +1997,73 @@ button, #choix-tri, .filtre summary, .filtre .filtre-options label, .filtre-icon
 /* ====================================================================================== */
 
 
-/* ▶ Petit écran (largeur de bascule à modifier dans la ligne @media) ==== */
+/* ▶ Petit écran : téléphone en portrait ou en paysage (bascule à modifier dans la ligne @media et dans TELEPHONE de app.js) ==== */
 
 
-@media (max-width: 700px) {
+@media (max-width: 700px), (max-height: 500px) and (orientation: landscape) {
+
+
+  /* Onglet « Séries » : tableau plus petit (texte, marges des cellules, icônes et barres de progression) */
+  .tableau-series { font-size: 0.75rem; } /* Texte du tableau */
+  .tableau-series th, .tableau-series td { padding: 0.4rem 0.45rem; } /* Marges des cellules réduites */
+  .tableau-series .drapeau, .tableau-series .symbole, .bouton-voir-serie .icone { width: 1rem; height: auto; } /* Drapeaux et icônes plus petits */
+  .progression-serie { min-width: 130px; gap: 0.4rem; } /* Barre de progression plus courte */
+
+
+  /* Onglet « À propos » : blocs plus compacts et texte plus petit */
+  .apropos-bloc { padding: 0.9rem 1rem; font-size: 0.85rem; line-height: 1.45; } /* Marges et texte réduits */
+  .apropos-bloc h3 { font-size: 1rem; margin-bottom: 0.5rem; } /* Titres plus petits */
+
+
+  /* Journal de bord : bouton « Nouvelle note » plus petit */
+  #bouton-nouvelle-note { padding: 0.45rem 0.8rem; font-size: 0.8rem; } /* Marges et texte réduits */
+  .journal-barre { margin-bottom: 1rem; } /* Espace réduit avant les notes */
+
+
+  /* Journal de bord : notes plus étroites (deux par ligne) et plus compactes */
+  .journal-notes {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* Colonnes de 140 px minimum */
+    gap: 1.1rem; /* Espace réduit entre les notes */
+  }
+  .note-carte {
+    min-height: 150px; /* Hauteur minimale réduite */
+    padding: calc(var(--hauteur-brulure) + 0.2rem) 0.8rem 0.8rem; /* Marges intérieures réduites (toujours sous le bord brûlé) */
+  }
+  .note-carte-titre { font-size: 0.8rem; } /* Titre plus petit */
+  .note-carte-extrait { font-size: 0.78rem; -webkit-line-clamp: 4; } /* Extrait plus petit, quatre lignes au plus */
+
+
+  /* Écran de connexion : formulaire plus compact, centré dans la hauteur visible */
+  #ecran-connexion {
+    padding: 1rem 0.75rem; /* Marges réduites */
+  }
+
+
+  /* Formulaire de connexion : moins de marges et d'espaces */
+  .affiche {
+    width: min(100%, 360px); /* Largeur réduite */
+    padding: 1.5rem 1.25rem; /* Marge intérieure réduite */
+    gap: 0.8rem; /* Espace réduit entre les éléments */
+    border-width: 4px; /* Double bordure plus fine */
+  }
+
+
+  /* Titre « WANTED » plus petit */
+  .affiche .titre {
+    font-size: 2.6rem; /* Taille du texte */
+  }
+
+
+  /* Texte d'accueil plus petit */
+  .sous-titre {
+    font-size: 0.85rem; /* Taille du texte */
+  }
+
+
+  /* Champs de saisie : 16 px minimum, sinon l'iPhone zoome sur le champ et décentre l'écran */
+  .affiche input {
+    font-size: 16px; /* Taille du texte */
+  }
 
 
   /* Écran : marges réduites, cartes sur presque toute la largeur */
@@ -2013,6 +2085,7 @@ button, #choix-tri, .filtre summary, .filtre .filtre-options label, .filtre-icon
   .en-tete-utilisateur { flex-direction: column; align-items: flex-end; gap: 0; } /* Compteur sous la déconnexion, alignés à droite */
   .en-tete-utilisateur > #compteur-cartes { display: block; font-size: 0.8rem; padding: 0; opacity: 0.7; } /* Cartes collectionnées / total, même taille */
   .onglets { order: 2; flex-basis: 100%; margin: 0; } /* Onglets sur leur propre ligne */
+  .onglet { padding: 0.35rem 0.5rem; font-size: 0.8rem; } /* Onglets plus petits : les quatre tiennent sur la ligne */
   #maj, #utilisateur-email { display: none; } /* Date de mise à jour et email masqués */
   .saut-telephone { display: inline; } /* Devise sur deux lignes, coupée après « Grand Line » */
 
@@ -2025,7 +2098,7 @@ button, #choix-tri, .filtre summary, .filtre .filtre-options label, .filtre-icon
 
   /* Barre au-dessus des cartes : espace réduit */
   .barre-tri {
-    margin-bottom: 0.5rem; /* Espace sous la barre */
+    margin-bottom: 1rem; /* Espace entre les icônes et les cartes */
   }
   .filtres-ouverts .barre-tri { margin-bottom: 1.25rem; } /* Filtres ouverts : plus d'espace entre « Vider le panier » et les cartes */
   
@@ -2033,6 +2106,8 @@ button, #choix-tri, .filtre summary, .filtre .filtre-options label, .filtre-icon
   /* Une seule colonne : barre latérale au-dessus du classeur */
   .mise-en-page {
     grid-template-columns: 1fr; /* Une seule colonne */
+    gap: 1rem; /* Espace entre la recherche et les icônes, égal à celui entre les icônes et les cartes (.barre-tri) */
+    --taille-icones: 1.35rem; /* Icônes collection, panier et vider le panier plus petites */
   }
   
 
@@ -2047,9 +2122,9 @@ button, #choix-tri, .filtre summary, .filtre .filtre-options label, .filtre-icon
   }
 
 
-  /* Filtres fermés : seule la recherche reste (prime, filtres, réinitialisation, tri et icônes masqués) */
+  /* Filtres fermés : recherche, icônes collection/panier et vider le panier visibles (prime, filtres, réinitialisation et tri masqués) */
   .mise-en-page:not(.filtres-ouverts) .barre-outils > :not(.ligne-recherche),
-  .mise-en-page:not(.filtres-ouverts) .barre-tri-gauche {
+  .mise-en-page:not(.filtres-ouverts) .barre-tri-gauche > :not(.filtre-icones):not(.bouton-vider-panier) {
     display: none; /* Invisibles */
   }
 
@@ -2089,6 +2164,12 @@ button, #choix-tri, .filtre summary, .filtre .filtre-options label, .filtre-icon
   }
 
 
+  /* Filtres ouverts : texte plus petit (titres des filtres, options, réinitialisation, tri et vider le panier) */
+  .filtre summary { font-size: 0.85rem; padding: 0.4rem 0; } /* Titres des filtres et résumés */
+  .filtre .filtre-options label { font-size: 0.8rem; } /* Options à cocher */
+  .bouton-reinitialiser, #choix-tri, .bouton-vider-panier { font-size: 0.8rem; } /* Réinitialisation, liste de tri et vider le panier */
+
+
   /* Bouton des filtres ouverts : fond bleu */
   .bouton-filtres[aria-expanded="true"] {
     background: var(--bleu-electrique); /* Fond bleu */
@@ -2099,10 +2180,11 @@ button, #choix-tri, .filtre summary, .filtre .filtre-options label, .filtre-icon
   .barre-tri-gauche {
     width: 100%; /* Toute la largeur */
     flex-wrap: wrap; /* Icônes à la ligne */
-    gap: 0.75rem 1rem; /* Espace (lignes, colonnes) */
+    gap: 0.75rem 1.5rem; /* Espace (lignes, colonnes) : groupes d'icônes nettement séparés */
   }
-  #choix-tri { flex-basis: 100%; min-width: 0; } /* Liste de tri sur toute la largeur */
+  .filtre-icones .filtre-options { gap: 0.4rem; } /* Icônes d'un même groupe rapprochées (carte et carte barrée, caddie et caddie barré) */
   .bouton-vider-panier { margin-left: auto; } /* Vider le panier calé à droite */
+  #choix-tri { flex-basis: 100%; min-width: 0; } /* Liste de tri sur toute la largeur */
 
 
   /* Zone des cartes : un seul bloc (annule la double page de l'ordinateur) */
@@ -2155,3 +2237,39 @@ button, #choix-tri, .filtre summary, .filtre .filtre-options label, .filtre-icon
 
 
 /* ====================================================================================== */
+
+
+/* ====================================================================================== */
+
+
+/* ▶ Téléphone en paysage : écran peu haut (compléments au « Petit écran ») ==== */
+
+
+@media (max-height: 500px) and (orientation: landscape) {
+
+
+  /* Barre de recherche et filtres ouverts : moins haute, pour laisser voir les cartes */
+  .barre-outils {
+    max-height: 70vh; /* Hauteur maximale */
+  }
+
+
+  /* Avis de recherche : portrait moins haut, l'affiche tient dans l'écran */
+  .avis-portrait {
+    height: 9rem; /* Hauteur */
+  }
+
+
+  /* Note ouverte : zone d'écriture adaptée à la hauteur de l'écran */
+  .note-contenu {
+    min-height: 35vh; /* Hauteur minimale */
+  }
+
+
+  /* Écran de connexion : titre plus petit pour tenir sans défilement */
+  .affiche .titre {
+    font-size: 2rem; /* Taille du texte */
+  }
+
+
+}
