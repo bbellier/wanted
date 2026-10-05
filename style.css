@@ -1419,6 +1419,172 @@ button {
 /* ====================================================================================== */
 
 
+/* ▶ Onglet « Journal de bord » ==== */
+
+
+/* Onglet : bouton puis notes */
+#onglet-journal {
+  margin-top: 1.5rem; /* Marge en haut */
+}
+
+
+/* Barre au-dessus des notes : bouton « Nouvelle note » à droite */
+.journal-barre {
+  display: flex; /* Bouton aligné */
+  justify-content: flex-end; /* À droite */
+  margin-bottom: 1.5rem; /* Espace avant les notes */
+}
+
+
+/* Notes en grille (autant de colonnes que la largeur le permet) */
+.journal-notes {
+  display: grid; /* Grille */
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Colonnes de 220 px minimum */
+  gap: 1.75rem; /* Espace entre les notes */
+}
+
+
+/* Note : papier de pirate, légèrement incliné (angle propre à chaque note, calculé par app.js) */
+.note-carte {
+  display: flex; /* Éléments empilés */
+  flex-direction: column; /* Titre, extrait puis date */
+  gap: 0.5rem; /* Espace entre les éléments */
+  min-height: 190px; /* Hauteur minimale */
+  padding: 1.1rem 1.2rem; /* Marge intérieure */
+  background: var(--parchemin); /* Fond parchemin */
+  color: var(--encre); /* Texte couleur encre */
+  border-radius: 3px 9px 4px 11px; /* Bords irréguliers */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45), inset 0 0 30px rgba(58, 39, 23, 0.3); /* Ombre portée et bords vieillis */
+  transform: rotate(var(--inclinaison, 0deg)); /* Inclinaison */
+  transition: transform 0.2s; /* Redressement progressif au survol */
+  cursor: pointer; /* Curseur en forme de main */
+}
+
+
+/* Titre de la note */
+.note-carte-titre {
+  margin: 0; /* Aucune marge */
+  font-family: var(--police-titre); /* Police du titre */
+  font-size: 1.1rem; /* Taille */
+  line-height: 1.2; /* Interligne */
+  word-break: break-word; /* Titre long coupé si besoin */
+}
+
+
+/* Début du contenu (cinq lignes au plus, retours à la ligne conservés) */
+.note-carte-extrait {
+  flex: 1; /* Prend la place disponible */
+  margin: 0; /* Aucune marge */
+  font-size: 0.85rem; /* Taille */
+  line-height: 1.45; /* Interligne */
+  white-space: pre-wrap; /* Retours à la ligne conservés */
+  word-break: break-word; /* Mots longs coupés */
+  display: -webkit-box; /* Nécessaire pour limiter le nombre de lignes */
+  -webkit-line-clamp: 5; /* Cinq lignes au plus */
+  -webkit-box-orient: vertical; /* Lignes empilées */
+  overflow: hidden; /* Suite masquée */
+}
+
+
+/* Date de dernière modification */
+.note-carte-date {
+  margin: 0; /* Aucune marge */
+  font-size: 0.7rem; /* Taille */
+  opacity: 0.7; /* Estompée */
+  text-align: right; /* À droite */
+}
+
+
+/* Fenêtre de la note : grand papier de pirate */
+.note-papier {
+  position: relative; /* Repère pour la croix de fermeture */
+  display: flex; /* Éléments empilés */
+  flex-direction: column; /* Titre, contenu, dates puis boutons */
+  gap: 0.75rem; /* Espace entre les éléments */
+  width: min(600px, 92vw); /* Largeur, sans dépasser l'écran */
+  max-height: 90vh; /* Hauteur maximale */
+  padding: 1.75rem 1.5rem 1.25rem; /* Marge intérieure */
+  background: var(--parchemin); /* Fond parchemin */
+  color: var(--encre); /* Texte couleur encre */
+  border: 6px double var(--encre); /* Double cadre */
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 0 40px rgba(58, 39, 23, 0.35); /* Ombre portée et bords vieillis */
+  animation: avis-apparition 0.35s ease; /* Apparition (même animation que l'avis de recherche) */
+}
+
+
+/* Titre modifiable : souligné en pointillés */
+.note-titre {
+  padding: 0.25rem 2rem 0.25rem 0; /* Place à droite pour la croix */
+  border: none; /* Aucune bordure */
+  border-bottom: 2px dashed var(--encre); /* Soulignement en pointillés */
+  background: transparent; /* Fond du papier */
+  color: var(--encre); /* Couleur encre */
+  font-family: var(--police-titre); /* Police du titre */
+  font-size: 1.4rem; /* Taille */
+  outline: none; /* Pas de cadre au clic (le soulignement suffit) */
+}
+
+
+/* Contenu modifiable : papier ligné */
+.note-contenu {
+  flex: 1; /* Prend la place disponible */
+  min-height: 300px; /* Hauteur minimale */
+  padding: 0; /* Aucune marge intérieure (le texte suit les lignes) */
+  border: none; /* Aucune bordure */
+  background: repeating-linear-gradient(transparent 0 calc(1.6em - 1px), rgba(58, 39, 23, 0.2) calc(1.6em - 1px) 1.6em); /* Lignes du papier */
+  color: var(--encre); /* Couleur encre */
+  font-family: inherit; /* Police du site */
+  font-size: 1rem; /* Taille */
+  line-height: 1.6em; /* Interligne accordé aux lignes du papier */
+  resize: vertical; /* Hauteur réglable */
+  outline: none; /* Pas de cadre au clic */
+}
+
+
+/* Texte d'exemple dans les champs vides */
+.note-titre::placeholder,
+.note-contenu::placeholder {
+  color: rgba(58, 39, 23, 0.45); /* Encre pâle */
+}
+
+
+/* Dates de création et de modification */
+.note-date {
+  margin: 0; /* Aucune marge */
+  font-size: 0.75rem; /* Taille */
+  opacity: 0.7; /* Estompées */
+}
+
+
+/* Boutons : suppression à gauche, enregistrement à droite */
+.note-actions {
+  display: flex; /* Boutons alignés */
+  justify-content: space-between; /* Aux deux extrémités */
+  gap: 1rem; /* Espace minimal */
+}
+
+
+/* Bouton de suppression : contour rouge */
+.note-supprimer {
+  padding: 0.5rem 1rem; /* Marge intérieure */
+  border: 1px solid var(--rouge); /* Contour rouge */
+  border-radius: 4px; /* Coins arrondis */
+  background: none; /* Aucun fond */
+  color: var(--rouge); /* Texte rouge */
+  font: inherit; /* Police du site */
+  cursor: pointer; /* Curseur en forme de main */
+}
+
+
+/* Bouton d'enregistrement : poussé à droite même sans bouton de suppression */
+#bouton-enregistrer-note {
+  margin-left: auto; /* À droite */
+}
+
+
+/* ====================================================================================== */
+
+
 /* ▶ Onglet « À propos » ==== */
 
 
@@ -1672,6 +1838,19 @@ button, #choix-tri, .filtre summary, .filtre .filtre-options label, .filtre-icon
 
 /* Survols actifs uniquement avec une souris (pas d'effet « collé » sur téléphone) */
 @media (hover: hover) {
+
+
+  /* Note du journal de bord : redressée et légèrement agrandie */
+  .note-carte:hover {
+    transform: rotate(0) scale(1.03); /* Droite et plus grande */
+  }
+
+
+  /* Bouton de suppression d'une note : fond rouge */
+  .note-supprimer:hover {
+    background: var(--rouge); /* Fond rouge */
+    color: var(--blanc); /* Texte clair */
+  }
 
 
   /* Bouton de connexion : rouge plus clair */

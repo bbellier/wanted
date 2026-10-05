@@ -9,6 +9,7 @@ const SUPABASE_LIEN = "https://vkyiwovwnylquaelzhtj.supabase.co"; // Lien du pro
 const SUPABASE_CLE_PUBLIQUE = "sb_publishable_gJxdiDzMkRsy2h3APxdwAA_0lDhEygR"; // Clé Supabase publiable
 const TABLE_CARTES = "bdd_cartes_vierge"; // Table des cartes (alimentée par R)
 const TABLE_COLLECTION = "bdd_cartes_collection"; // Table de la collection (modifiée par le site)
+const TABLE_JOURNAL = "bdd_journal"; // Table des notes du journal de bord (modifiée par le site)
 
 
 // ↳ Classeur ====
@@ -75,7 +76,13 @@ const TEXTES = {
   avisNom: (email) => String(email).split("@")[0].toUpperCase(), // Nom sur l'avis de recherche (partie de l'email avant « @ »)
   avisMontant: (montant) => montant.toLocaleString("fr-FR") + " Berrys", // Prime sur l'avis de recherche
   avisSansPrime: "Prime inconnue", // Avis de recherche quand les primes n'ont pas pu être lues
-  avisEquivalente: "Ta valeur est équivalente à celle de" // Phrase au-dessus du nom du personnage sur l'avis de recherche
+  avisEquivalente: "Ta valeur est équivalente à celle de", // Phrase au-dessus du nom du personnage sur l'avis de recherche
+  journalChargement: "Lecture du journal de bord...", // Pendant le chargement des notes
+  journalVide: "Ton journal de bord est vide... Écris ta première note, capitaine !", // Aucune note
+  journalSansTitre: "Sans titre", // Note sans titre
+  noteDates: (creation, modification) => `Écrite le ${creation}` + (modification !== creation ? ` · modifiée le ${modification}` : ""), // Dates sous une note
+  confirmationSupprimerNote: "Jeter cette note à la mer ? Elle sera supprimée définitivement.", // Fenêtre de confirmation
+  confirmationFermerNote: "Fermer sans enregistrer les modifications ?" // Fermeture d'une note modifiée
 };
 
 
@@ -98,6 +105,8 @@ const observateurListe = new IntersectionObserver((entrees) => { if (entrees[0].
 const visuelsTrouves = {}; // Visuels déjà cherchés, par numéro de carte (recherche faite une seule fois)
 let loupeSurvolee = null; // Loupe survolée (un aperçu prêt après la sortie de la souris est ignoré)
 let minuterieAvis = null; // Défilement en cours sur l'avis de recherche (arrêté si l'avis est rouvert ou fermé)
+let notes = []; // Notes du journal de bord de l'utilisateur, de la plus récemment modifiée à la plus ancienne
+let noteOuverte = null; // Note affichée dans la fenêtre : { id (null pour une nouvelle note), titre et contenu d'origine }
 
 
 // ========================================================================================================
@@ -258,6 +267,17 @@ const viderFiltres = () => {
   element("recherche").value = "";
   FILTRES.forEach((id) => { casesCochees(id).forEach((caseACocher) => caseACocher.checked = false); resumerFiltre(id); });
 };
+
+
+// ========================================================================================================
+
+
+// Texte sans balises HTML (notes écrites par l'utilisateur, affichées dans la page)
+const echapper = (texte) => String(texte ?? "").replace(/[&<>"']/g, (caractere) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[caractere]);
+
+
+// Date et heure au format JJ/MM/AAAA HH:MM
+const formaterDateHeure = (date) => new Date(date).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
 
 
 // ========================================================================================================
@@ -595,6 +615,7 @@ function afficherOnglet(id) {
   document.querySelectorAll(".onglet").forEach((bouton) => bouton.classList.toggle("actif", bouton.dataset.onglet === id));
   document.querySelectorAll(".onglet-contenu").forEach((onglet) => onglet.hidden = onglet.id !== id);
   if (id === "onglet-series") afficherSeries(); // Résumé recalculé à chaque ouverture (collection à jour)
+  if (id === "onglet-journal") chargerNotes(); // Notes relues à chaque ouverture (modifications faites sur un autre appareil)
 
 }
 
@@ -644,6 +665,99 @@ async function viderPanier() {
   if (error) return afficherMessage(TEXTES.enregistrementImpossible + error.message);
   data.forEach((ligne) => collection[cleCarte(ligne)] = ligne);
   afficherCartes();
+
+}
+
+
+// ========================================================================================================
+
+
+// Charger les notes du journal de bord de l'utilisateur (règles d'accès de Supabase : uniquement les siennes) ====
+async function chargerNotes() {
+
+  element("journal-message").textContent = TEXTES.journalChargement;
+  const { data, error } = await bdd.from(TABLE_JOURNAL).select("*").order("journal_date_modif", { ascending: false });
+  if (error) return element("journal-message").textContent = TEXTES.chargementImpossible + error.message;
+  notes = data;
+  afficherNotes();
+
+}
+
+
+// Afficher les notes sous forme de papiers de pirate, légèrement inclinés ====
+function afficherNotes() {
+
+  element("journal-message").textContent = notes.length === 0 ? TEXTES.journalVide : "";
+  element("journal-notes").innerHTML = notes.map((note) => `
+    <article class="note-carte" data-id="${note.journal_id}" style="--inclinaison: ${(note.journal_id * 37 % 7 - 3) * 0.6}deg" tabindex="0">
+      <h3 class="note-carte-titre">${echapper(note.journal_titre) || TEXTES.journalSansTitre}</h3>
+      <p class="note-carte-extrait">${echapper(note.journal_contenu)}</p>
+      <p class="note-carte-date">${formaterDateHeure(note.journal_date_modif)}</p>
+    </article>`).join("");
+
+}
+
+
+// Ouvrir une note dans la fenêtre (id vide = nouvelle note) ====
+function ouvrirNote(id = null) {
+
+  const note = notes.find((n) => n.journal_id === id);
+  noteOuverte = { id: note ? id : null, titre: note?.journal_titre ?? "", contenu: note?.journal_contenu ?? "" };
+  element("note-titre").value = noteOuverte.titre;
+  element("note-contenu").value = noteOuverte.contenu;
+  element("note-date").textContent = note ? TEXTES.noteDates(formaterDateHeure(note.journal_date_creation), formaterDateHeure(note.journal_date_modif)) : "";
+  element("bouton-supprimer-note").hidden = !note; // Pas de suppression pour une note pas encore enregistrée
+  element("note-fenetre").hidden = false;
+  element(note ? "note-contenu" : "note-titre").focus();
+
+}
+
+
+// Note modifiée depuis son ouverture
+const noteModifiee = () => noteOuverte && (element("note-titre").value !== noteOuverte.titre || element("note-contenu").value !== noteOuverte.contenu);
+
+
+// Fermer la fenêtre de la note (confirmation si elle a été modifiée sans être enregistrée)
+const fermerNote = () => {
+  if (element("note-fenetre").hidden || (noteModifiee() && !confirm(TEXTES.confirmationFermerNote))) return;
+  noteOuverte = null;
+  element("note-fenetre").hidden = true;
+};
+
+
+// Enregistrer la note ouverte dans Supabase : création ou modification ====
+async function enregistrerNote() {
+
+  // Contenu de la note (une nouvelle note vide est simplement fermée)
+  const ligne = { journal_titre: element("note-titre").value.trim(), journal_contenu: element("note-contenu").value };
+  if (noteOuverte.id === null && !ligne.journal_titre && !ligne.journal_contenu.trim()) { noteOuverte = null; return element("note-fenetre").hidden = true; }
+
+  // Créer ou modifier la ligne (utilisateur_id rempli par Supabase avec l'utilisateur connecté)
+  const requete = noteOuverte.id === null
+    ? bdd.from(TABLE_JOURNAL).insert(ligne)
+    : bdd.from(TABLE_JOURNAL).update({ ...ligne, journal_date_modif: new Date().toISOString() }).eq("journal_id", noteOuverte.id);
+  const { data, error } = await requete.select().single();
+  if (error) return alert(TEXTES.enregistrementImpossible + error.message);
+
+  // Note remise en tête de liste, fenêtre fermée
+  notes = [data, ...notes.filter((note) => note.journal_id !== data.journal_id)];
+  afficherNotes();
+  noteOuverte = null;
+  element("note-fenetre").hidden = true;
+
+}
+
+
+// Supprimer la note ouverte (après confirmation) ====
+async function supprimerNote() {
+
+  if (!confirm(TEXTES.confirmationSupprimerNote)) return;
+  const { error } = await bdd.from(TABLE_JOURNAL).delete().eq("journal_id", noteOuverte.id);
+  if (error) return alert(TEXTES.enregistrementImpossible + error.message);
+  notes = notes.filter((note) => note.journal_id !== noteOuverte.id);
+  afficherNotes();
+  noteOuverte = null;
+  element("note-fenetre").hidden = true;
 
 }
 
@@ -728,7 +842,17 @@ element("tableau-series").addEventListener("click", (evenement) => {
 element("bouton-logo").addEventListener("click", ouvrirAvis);
 element("bouton-fermer-avis").addEventListener("click", fermerAvis);
 element("avis-recherche").addEventListener("click", (evenement) => { if (evenement.target === evenement.currentTarget) fermerAvis(); });
-document.addEventListener("keydown", (evenement) => { if (evenement.key === "Escape") { fermerAvis(); masquerApercu(); } }); // Échap ferme aussi l'aperçu plein écran
+document.addEventListener("keydown", (evenement) => { if (evenement.key === "Escape") { fermerAvis(); masquerApercu(); fermerNote(); } }); // Échap ferme aussi l'aperçu plein écran et la note ouverte
+
+
+// Journal de bord : nouvelle note, ouverture d'une note (clic ou touche Entrée), enregistrement, suppression et fermeture (croix ou clic à côté du papier)
+element("bouton-nouvelle-note").addEventListener("click", () => ouvrirNote());
+element("journal-notes").addEventListener("click", (evenement) => { const carte = evenement.target.closest(".note-carte"); if (carte) ouvrirNote(Number(carte.dataset.id)); });
+element("journal-notes").addEventListener("keydown", (evenement) => { const carte = evenement.target.closest(".note-carte"); if (carte && evenement.key === "Enter") ouvrirNote(Number(carte.dataset.id)); });
+element("bouton-enregistrer-note").addEventListener("click", enregistrerNote);
+element("bouton-supprimer-note").addEventListener("click", supprimerNote);
+element("bouton-fermer-note").addEventListener("click", fermerNote);
+element("note-fenetre").addEventListener("click", (evenement) => { if (evenement.target === evenement.currentTarget) fermerNote(); });
 
 
 // Clic sur le bouton pour vider le panier

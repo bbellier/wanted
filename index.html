@@ -119,6 +119,7 @@
       <nav class="onglets">
         <button type="button" class="onglet actif" data-onglet="onglet-cartes">Cartes</button>
         <button type="button" class="onglet" data-onglet="onglet-series">Séries</button>
+        <button type="button" class="onglet" data-onglet="onglet-journal">Journal de bord</button>
         <button type="button" class="onglet" data-onglet="onglet-apropos">À propos</button>
       </nav>
 
@@ -279,6 +280,27 @@
     <!-- ====================================================================================================== -->
 
 
+    <!-- Onglet « Journal de bord » : notes de l'utilisateur sur des papiers de pirate (remplies par app.js) -->
+    <section id="onglet-journal" class="onglet-contenu" hidden>
+
+      <!-- Bouton pour écrire une nouvelle note -->
+      <div class="journal-barre">
+        <button type="button" id="bouton-nouvelle-note" class="bouton-principal">+ Nouvelle note</button>
+      </div>
+
+      <!-- Notes, de la plus récemment modifiée à la plus ancienne -->
+      <div id="journal-notes" class="journal-notes"></div>
+
+      <!-- Messages (chargement, journal vide, erreurs) -->
+      <p id="journal-message" class="message"></p>
+
+    </section>
+    <!-- Fin de l'onglet « Journal de bord » -->
+
+
+    <!-- ====================================================================================================== -->
+
+
     <!-- Onglet « À propos » -->
     <section id="onglet-apropos" class="onglet-contenu" hidden>
 
@@ -370,6 +392,24 @@
 
     <!-- Aperçu des visuels d'une carte au survol de sa loupe, ou en plein écran avec le bouton œil sur téléphone (rempli et placé par app.js) -->
     <div id="apercu-carte" class="apercu-carte" hidden></div>
+
+
+    <!-- ====================================================================================================== -->
+
+
+    <!-- Note du journal de bord : papier de pirate pour lire, écrire, modifier ou supprimer une note (remplie par app.js) -->
+    <div id="note-fenetre" class="avis-fond" hidden>
+      <div class="note-papier" role="dialog" aria-modal="true" aria-label="Note du journal de bord">
+        <button type="button" id="bouton-fermer-note" class="avis-fermer" aria-label="Fermer">✕</button>
+        <input type="text" id="note-titre" class="note-titre" placeholder="Titre de la note" maxlength="120">
+        <textarea id="note-contenu" class="note-contenu" placeholder="Écris ici, moussaillon..."></textarea>
+        <p id="note-date" class="note-date"></p>
+        <div class="note-actions">
+          <button type="button" id="bouton-supprimer-note" class="note-supprimer">Jeter à la mer</button>
+          <button type="button" id="bouton-enregistrer-note" class="bouton-principal">Enregistrer</button>
+        </div>
+      </div>
+    </div>
 
 
     <!-- ====================================================================================================== -->
