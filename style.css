@@ -587,6 +587,15 @@ button {
 }
 
 
+/* Compte des séries cochées, à côté du titre du filtre « Série » */
+.filtre-compte {
+  font-size: 0.75rem; /* Taille réduite */
+  font-weight: 400; /* Épaisseur normale */
+  opacity: 0.7; /* Estompé */
+  white-space: nowrap; /* Sur une seule ligne */
+}
+
+
 /* Résumé des options cochées */
 .filtre-resume {
   margin-left: auto; /* Poussé à droite */

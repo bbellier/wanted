@@ -69,6 +69,7 @@ const TEXTES = {
   plusieursFiltres: " sélectionnées", // Résumé d'un filtre avec plusieurs cases cochées (précédé du nombre)
   compteurCartes: (n, total) => `${n} cartes / ${total}`, // Sous la déconnexion sur téléphone
   progression: (n, total) => `Tu as ${total ? Math.round(n / total * 100) : 0} % des cartes (${n}/${total})`, // Progression dans la barre latérale (avec le pourcentage)
+  compteSeries: (n, total) => `(${n}/${total} cartes)`, // À côté du titre du filtre « Série » quand des séries sont cochées
   page: (page, nbPages) => `Page ${page} / ${nbPages}`, // Pagination
   primeEquivalente: (nom) => `Ta valeur est équivalente à celle de ${nom} !`, // Personnage dont la prime est la plus proche
   primeAucune: "Même Chopper vaut plus que toi...", // Aucune carte collectionnée
@@ -483,9 +484,12 @@ function afficherCartes() {
   const sens = sensTri === "desc" ? -1 : 1;
   cartesAffichees.sort((a, b) => colonneTri === "serie_id" ? comparerCartes(a, b) : String(a[colonneTri] ?? "").localeCompare(String(b[colonneTri] ?? ""), "fr", { numeric: true }) * sens);
 
-  // Progression (séries cochées, ou toutes les cartes si aucune série cochée)
-  const cartesSeries = cartes.filter((carte) => retenue(series, carte.serie_id));
-  element("progression").textContent = TEXTES.progression(cartesSeries.filter(estCollectionnee).length, cartesSeries.length);
+  // Progression de toute la collection, quels que soient les filtres (même base que la prime)
+  element("progression").textContent = TEXTES.progression(cartes.filter(estCollectionnee).length, cartes.length);
+
+  // Séries cochées : cartes possédées sur cartes des séries, à côté du titre du filtre « Série » (vide sans série cochée)
+  const cartesSeries = cartes.filter((carte) => series.includes(carte.serie_id));
+  element("filtre-serie-compte").textContent = series.length ? TEXTES.compteSeries(cartesSeries.filter(estCollectionnee).length, cartesSeries.length) : "";
   element("compteur-cartes").textContent = TEXTES.compteurCartes(cartes.filter(estCollectionnee).length, cartes.length); // Toute la collection, quels que soient les filtres
 
   // Prime de collection (toutes les cartes, quels que soient les filtres) et personnage à la prime la plus proche
