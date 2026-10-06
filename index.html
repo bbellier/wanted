@@ -87,7 +87,38 @@
 
       <!-- Bouton de connexion et zone de message -->
       <button type="submit" class="bouton-principal">Se connecter</button>
+
+      <!-- Passage au formulaire de création de compte -->
+      <button type="button" id="bouton-creer-compte" class="bouton-secondaire">Créer mon compte</button>
       <p id="message-connexion" class="message"></p>
+
+    </form>
+
+    <!-- Formulaire de création de compte (affiché à la place de la connexion par app.js) -->
+    <form id="formulaire-inscription" class="affiche" hidden>
+
+      <!-- Titre et texte d'accueil -->
+      <h1 class="titre">WANTED</h1>
+      <p class="sous-titre">
+        <b>Nouvelle recrue ?</b>
+        <br><br>
+        Choisis ton nom de pirate et part à la traque du One Piece !
+      </p>
+
+      <!-- Champs pseudo, email et mot de passe -->
+      <label>Pseudo <input type="text" id="inscription-pseudo" autocomplete="nickname" required minlength="3" maxlength="20"></label>
+      <label>Email <input type="email" id="inscription-email" autocomplete="email" required></label>
+      <label>Mot de passe (8 caractères minimum)
+        <span class="champ-mot-de-passe">
+          <input type="password" id="inscription-mot-de-passe" autocomplete="new-password" required minlength="8">
+          <button type="button" id="bouton-voir-mot-de-passe-inscription">Voir/Cacher</button>
+        </span>
+      </label>
+
+      <!-- Boutons de création et de retour, zone de message -->
+      <button type="submit" class="bouton-principal">Créer mon compte</button>
+      <button type="button" id="bouton-retour-connexion" class="bouton-secondaire">J'ai déjà un compte</button>
+      <p id="message-inscription" class="message"></p>
 
     </form>
 
@@ -125,7 +156,8 @@
 
       <div class="en-tete-utilisateur">
         <span id="maj"></span>
-        <span id="utilisateur-email"></span>
+        <!-- Pseudo (ou email) de l'utilisateur : ouvre son profil -->
+        <button type="button" id="utilisateur-email" class="bouton-profil" title="Mon profil"></button>
         <button type="button" id="bouton-deconnexion">Se déconnecter</button>
         <span id="compteur-cartes"></span> <!-- Téléphone : cartes collectionnées / total, sous la déconnexion (rempli par app.js) -->
       </div>
@@ -392,6 +424,29 @@
 
     <!-- Aperçu des visuels d'une carte au survol de sa loupe, ou en plein écran avec le bouton œil sur téléphone (rempli et placé par app.js) -->
     <div id="apercu-carte" class="apercu-carte" hidden></div>
+
+
+    <!-- ====================================================================================================== -->
+
+
+    <!-- Profil de l'utilisateur : pseudo, email, mot de passe et suppression du compte (rempli par app.js) -->
+    <div id="profil-fenetre" class="avis-fond" hidden>
+      <form id="formulaire-profil" class="profil-fiche" role="dialog" aria-modal="true" aria-labelledby="profil-titre">
+        <button type="button" id="bouton-fermer-profil" class="avis-fermer" aria-label="Fermer">✕</button>
+        <h2 id="profil-titre" class="profil-titre">Mon profil</h2>
+        <p id="profil-date" class="profil-date"></p>
+        <label>Pseudo <input type="text" id="profil-pseudo" autocomplete="nickname" required minlength="3" maxlength="20"></label>
+        <label>Email <input type="email" id="profil-email" autocomplete="email" required></label>
+        <label>Nouveau mot de passe (vide = inchangé, 8 caractères minimum)
+          <input type="password" id="profil-mot-de-passe" autocomplete="new-password" minlength="8">
+        </label>
+        <p id="profil-message" class="message"></p>
+        <div class="profil-actions">
+          <button type="button" id="bouton-supprimer-compte" class="note-supprimer">Supprimer mon compte</button>
+          <button type="submit" class="bouton-principal">Enregistrer</button>
+        </div>
+      </form>
+    </div>
 
 
     <!-- ====================================================================================================== -->

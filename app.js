@@ -68,6 +68,10 @@ const TEXTES = {
   chargement: "Chargement des cartes...", // Pendant le chargement
   chargementImpossible: "Chargement impossible : ", // Échec du chargement (suivi du détail de l'erreur)
   enregistrementImpossible: "Enregistrement impossible : ", // Échec d'un enregistrement (suivi du détail de l'erreur)
+  creationCompte: "Création du compte...", // Pendant la création d'un compte
+  creationImpossible: "Création impossible : ", // Échec de la création (suivi du détail de l'erreur)
+  compteCree: "Compte créé ! Clique sur le lien reçu par email pour le confirmer, puis connecte-toi.", // Confirmation par email demandée
+  emailDejaUtilise: "⚠ Cet email est déjà utilisé : connecte-toi avec ce compte, ou choisis un autre email.", // Création refusée (compte existant)
   confirmationViderPanier: "Vider le panier ?", // Fenêtre de confirmation
   voirSerie: "Voir les cartes de la série", // Survol d'une ligne du tableau des séries
   aucunFiltre: "Toutes", // Résumé d'un filtre sans case cochée
@@ -79,7 +83,7 @@ const TEXTES = {
   primeEquivalente: (nom) => `Ta valeur est équivalente à celle de ${nom} !`, // Personnage dont la prime est la plus proche
   primeAucune: "Même Chopper vaut plus que toi...", // Aucune carte collectionnée
   serieConquise: "Équipage complet !", // Badge d'une série complète
-  avisNom: (email) => String(email).split("@")[0].toUpperCase(), // Nom sur l'avis de recherche (partie de l'email avant « @ »)
+  avisNom: (nom) => String(nom).split("@")[0].toUpperCase(), // Nom sur l'avis de recherche (pseudo, ou partie de l'email avant « @ » pour les comptes sans pseudo)
   avisMontant: (montant) => montant.toLocaleString("fr-FR") + " Berrys", // Prime sur l'avis de recherche
   avisSansPrime: "Prime inconnue", // Avis de recherche quand les primes n'ont pas pu être lues
   avisEquivalente: "Ta valeur est équivalente à celle de", // Phrase au-dessus du nom du personnage sur l'avis de recherche
@@ -88,7 +92,15 @@ const TEXTES = {
   journalSansTitre: "Sans titre", // Note sans titre
   noteDates: (creation, modification) => `Écrite le ${creation}` + (modification !== creation ? ` · modifiée le ${modification}` : ""), // Dates sous une note
   confirmationSupprimerNote: "Jeter cette note à la mer ? Elle sera supprimée définitivement.", // Fenêtre de confirmation
-  confirmationFermerNote: "Fermer sans enregistrer les modifications ?" // Fermeture d'une note modifiée
+  confirmationFermerNote: "Fermer sans enregistrer les modifications ?", // Fermeture d'une note modifiée
+  profilDate: (date) => `Pirate inscrit le ${date}`, // Date de création du compte, dans le profil
+  profilEnregistrement: "Enregistrement...", // Pendant l'enregistrement du profil
+  profilEnregistre: "Profil enregistré !", // Profil enregistré
+  profilEmailAConfirmer: "Profil enregistré ! Un lien de confirmation a été envoyé à la nouvelle adresse : l'email changera après le clic.", // Changement d'email en attente de confirmation
+  profilInchange: "Aucune modification à enregistrer.", // Profil enregistré sans changement
+  confirmationSupprimerCompte: "Supprimer définitivement ton compte, ta collection et ton journal de bord ?\nTape SUPPRIMER pour confirmer.", // Fenêtre de confirmation (mot à taper)
+  motConfirmationSuppression: "SUPPRIMER", // Mot à taper pour supprimer le compte
+  suppressionImpossible: "Suppression impossible : " // Échec de la suppression du compte (suivi du détail de l'erreur)
 };
 
 
@@ -207,6 +219,17 @@ const chercherVisuels = (numero) => visuelsTrouves[numero] ??= (async () => {
 
 // Type de dos de carte d'une carte (affiché quand aucun visuel n'est trouvé) : « don », « leader » ou « normale »
 const typeDos = (carte) => carte._don ? "don" : String(carte.carte_categorie).toLowerCase() === "leader" ? "leader" : "normale";
+
+
+// Nom affiché de l'utilisateur connecté : pseudo choisi à la création du compte, sinon son email
+const nomUtilisateur = () => utilisateur?.user_metadata?.pseudo || utilisateur?.email || "";
+
+
+// Afficher l'un des deux formulaires de l'écran de connexion (connexion ou création de compte) et vider leurs messages
+const afficherFormulaire = (id) => ["formulaire-connexion", "formulaire-inscription"].forEach((formulaire) => {
+  element(formulaire).hidden = formulaire !== id;
+  element(formulaire).querySelector(".message").textContent = "";
+});
 
 
 // Masquer l'aperçu des visuels (sans erreur si le bloc de l'aperçu manque dans index.html)
@@ -379,7 +402,7 @@ async function demarrer() {
   // Basculer de l'écran de connexion à l'écran de l'application
   element("ecran-connexion").hidden = true;
   element("ecran-application").hidden = false;
-  element("utilisateur-email").textContent = utilisateur.email;
+  element("utilisateur-email").textContent = nomUtilisateur();
   afficherMessage(TEXTES.chargement);
 
   // Charger les cartes et la collection de l'utilisateur
@@ -593,7 +616,7 @@ function ouvrirAvis() {
   // Prime, personnage équivalent et progression (toute la collection, quels que soient les filtres)
   const possedees = cartes.filter(estCollectionnee).length;
   const prime = primes.length > 0 ? calculerPrime(possedees / Math.max(1, cartes.length)) : null;
-  element("avis-nom").textContent = TEXTES.avisNom(utilisateur?.email ?? "");
+  element("avis-nom").textContent = TEXTES.avisNom(nomUtilisateur());
   ["avis-equivalente", "avis-personnage"].forEach((id) => element(id).textContent = ""); // Remplis pendant le défilement de la prime
   element("avis-progression").textContent = TEXTES.progression(possedees, cartes.length);
   element("avis-recherche").hidden = false;
@@ -762,6 +785,62 @@ async function enregistrerNote() {
 }
 
 
+// Ouvrir le profil de l'utilisateur connecté (pseudo, email, date d'inscription ; mot de passe vide) ====
+function ouvrirProfil() {
+
+  element("profil-pseudo").value = utilisateur.user_metadata?.pseudo ?? "";
+  element("profil-email").value = utilisateur.email ?? "";
+  element("profil-mot-de-passe").value = "";
+  element("profil-date").textContent = TEXTES.profilDate(formaterDateHeure(utilisateur.created_at));
+  element("profil-message").textContent = "";
+  element("profil-fenetre").hidden = false;
+  element("profil-pseudo").focus();
+
+}
+
+
+// Fermer le profil
+const fermerProfil = () => element("profil-fenetre").hidden = true;
+
+
+// Enregistrer les modifications du profil dans Supabase : pseudo, email (confirmation par lien) et mot de passe ====
+async function enregistrerProfil() {
+
+  // Modifications demandées (seulement les champs changés)
+  const pseudo = element("profil-pseudo").value.trim(), email = element("profil-email").value.trim(), motDePasse = element("profil-mot-de-passe").value;
+  const modifications = {
+    ...(pseudo !== (utilisateur.user_metadata?.pseudo ?? "") && { data: { pseudo } }),
+    ...(email !== utilisateur.email && { email }),
+    ...(motDePasse && { password: motDePasse })
+  };
+  if (Object.keys(modifications).length === 0) return element("profil-message").textContent = TEXTES.profilInchange;
+
+  // Enregistrer dans Supabase (un nouvel email n'est appliqué qu'après le clic sur le lien envoyé à cette adresse)
+  element("profil-message").textContent = TEXTES.profilEnregistrement;
+  const { data, error } = await bdd.auth.updateUser(modifications, { emailRedirectTo: location.origin + location.pathname });
+  if (error) return element("profil-message").textContent = TEXTES.enregistrementImpossible + error.message;
+
+  // Profil à jour : nom de l'en-tête, mot de passe vidé, message
+  utilisateur = data.user;
+  element("utilisateur-email").textContent = nomUtilisateur();
+  element("profil-mot-de-passe").value = "";
+  element("profil-message").textContent = modifications.email ? TEXTES.profilEmailAConfirmer : TEXTES.profilEnregistre;
+
+}
+
+
+// Supprimer le compte de l'utilisateur, sa collection et son journal (mot à taper pour confirmer), puis revenir à l'écran de connexion ====
+async function supprimerCompte() {
+
+  if (prompt(TEXTES.confirmationSupprimerCompte)?.trim().toUpperCase() !== TEXTES.motConfirmationSuppression) return;
+  const { error } = await bdd.rpc("supprimer_mon_compte"); // Fonction de Supabase : supprime uniquement le compte connecté
+  if (error) return element("profil-message").textContent = TEXTES.suppressionImpossible + error.message;
+  await bdd.auth.signOut();
+  location.reload();
+
+}
+
+
 // Supprimer la note ouverte (après confirmation) ====
 async function supprimerNote() {
 
@@ -794,11 +873,50 @@ element("formulaire-connexion").addEventListener("submit", async (evenement) => 
 });
 
 
-// Afficher ou masquer le mot de passe
+// Création de compte : passage au formulaire de création, retour à la connexion
+element("bouton-creer-compte").addEventListener("click", () => { afficherFormulaire("formulaire-inscription"); element("inscription-pseudo").focus(); });
+element("bouton-retour-connexion").addEventListener("click", () => afficherFormulaire("formulaire-connexion"));
+
+
+// Création de compte : pseudo (gardé dans le compte Supabase), email et mot de passe, confirmation par email (lien renvoyant vers le site)
+element("formulaire-inscription").addEventListener("submit", async (evenement) => {
+  evenement.preventDefault();
+  element("message-inscription").classList.remove("avertissement");
+  element("message-inscription").textContent = TEXTES.creationCompte;
+  const { data, error } = await bdd.auth.signUp({
+    email: element("inscription-email").value.trim(),
+    password: element("inscription-mot-de-passe").value,
+    options: { data: { pseudo: element("inscription-pseudo").value.trim() }, emailRedirectTo: location.origin + location.pathname }
+  });
+  if (error) return element("message-inscription").textContent = TEXTES.creationImpossible + error.message;
+  // Email déjà utilisé : Supabase répond sans erreur mais avec un compte sans identité (message d'avertissement)
+  if (data.user?.identities?.length === 0) {
+    element("message-inscription").classList.add("avertissement");
+    return element("message-inscription").textContent = TEXTES.emailDejaUtilise;
+  }
+  // Session ouverte directement (confirmation désactivée dans Supabase) ou confirmation par email demandée
+  if (data.session) { utilisateur = data.user; return demarrer(); }
+  element("message-inscription").textContent = TEXTES.compteCree;
+});
+
+
+// Afficher ou masquer le mot de passe (connexion, puis création de compte)
 element("bouton-voir-mot-de-passe").addEventListener("click", () => {
   const champ = element("mot-de-passe");
   champ.type = champ.type === "password" ? "text" : "password";
 });
+element("bouton-voir-mot-de-passe-inscription").addEventListener("click", () => {
+  const champ = element("inscription-mot-de-passe");
+  champ.type = champ.type === "password" ? "text" : "password";
+});
+
+
+// Profil : ouverture par le pseudo de l'en-tête, enregistrement, suppression du compte et fermeture (croix ou clic à côté de la fiche)
+element("utilisateur-email").addEventListener("click", ouvrirProfil);
+element("formulaire-profil").addEventListener("submit", (evenement) => { evenement.preventDefault(); enregistrerProfil(); });
+element("bouton-supprimer-compte").addEventListener("click", supprimerCompte);
+element("bouton-fermer-profil").addEventListener("click", fermerProfil);
+element("profil-fenetre").addEventListener("click", (evenement) => { if (evenement.target === evenement.currentTarget) fermerProfil(); });
 
 
 // Déconnexion
@@ -856,7 +974,7 @@ element("tableau-series").addEventListener("click", (evenement) => {
 element("bouton-logo").addEventListener("click", ouvrirAvis);
 element("bouton-fermer-avis").addEventListener("click", fermerAvis);
 element("avis-recherche").addEventListener("click", (evenement) => { if (evenement.target === evenement.currentTarget) fermerAvis(); });
-document.addEventListener("keydown", (evenement) => { if (evenement.key === "Escape") { fermerAvis(); masquerApercu(); fermerNote(); } }); // Échap ferme aussi l'aperçu plein écran et la note ouverte
+document.addEventListener("keydown", (evenement) => { if (evenement.key === "Escape") { fermerAvis(); masquerApercu(); fermerNote(); fermerProfil(); } }); // Échap ferme aussi l'aperçu plein écran et la note ouverte
 
 
 // Journal de bord : nouvelle note, ouverture d'une note (clic ou touche Entrée), enregistrement, suppression et fermeture (croix ou clic à côté du papier)

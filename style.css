@@ -158,6 +158,13 @@ button {
 }
 
 
+/* Message d'avertissement (email déjà utilisé…) : orange, gras */
+.message.avertissement {
+  color: #e8902a; /* Orange */
+  font-weight: 600; /* Semi-gras */
+}
+
+
 /* Réserve d'icônes : présente dans la page mais invisible */
 .sprite-icones {
   position: absolute; /* Hors du flux de la page */
@@ -257,6 +264,19 @@ button {
   color: #fff; /* Couleur du texte */
   border: none; /* Aucune bordure */
   font-weight: 700; /* Gras */
+}
+
+
+/* Bouton secondaire (création de compte) : contour seul, sous le bouton de connexion */
+.bouton-secondaire {
+  padding: 0.6rem 1rem; /* Marge intérieure */
+  border: 1px solid var(--rouge); /* Contour rouge */
+  border-radius: 4px; /* Coins arrondis */
+  background: none; /* Aucun fond */
+  color: var(--rouge); /* Texte rouge */
+  font: inherit; /* Police du site */
+  font-weight: 600; /* Semi-gras */
+  cursor: pointer; /* Curseur en forme de main */
 }
 
 
@@ -1713,6 +1733,102 @@ button {
 /* ====================================================================================== */
 
 
+/* ▶ Profil de l'utilisateur (clic sur le pseudo de l'en-tête) ==== */
+
+
+/* Pseudo de l'en-tête : texte cliquable, souligné en pointillés */
+.bouton-profil {
+  padding: 0; /* Aucune marge intérieure */
+  border: none; /* Aucune bordure */
+  background: none; /* Aucun fond */
+  color: inherit; /* Couleur du texte de l'en-tête */
+  font: inherit; /* Police de l'en-tête */
+  text-decoration: underline dotted; /* Souligné en pointillés (cliquable) */
+  text-underline-offset: 3px; /* Soulignement un peu détaché du texte */
+  cursor: pointer; /* Curseur en forme de main */
+}
+
+
+/* Fiche du profil : parchemin encadré, comme l'avis de recherche */
+.profil-fiche {
+  position: relative; /* Repère pour la croix de fermeture */
+  display: flex; /* Éléments empilés */
+  flex-direction: column; /* Titre, champs puis boutons */
+  gap: 0.8rem; /* Espace entre les éléments */
+  width: min(420px, 92vw); /* Largeur, sans dépasser l'écran */
+  max-height: 90vh; /* Hauteur maximale */
+  overflow-y: auto; /* Défilement si l'écran est trop petit */
+  padding: 1.75rem 1.5rem 1.25rem; /* Marge intérieure */
+  background: var(--parchemin); /* Fond parchemin */
+  color: var(--encre); /* Texte couleur encre */
+  border: 6px double var(--encre); /* Double cadre */
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 0 40px rgba(58, 39, 23, 0.35); /* Ombre portée et bords vieillis */
+  animation: avis-apparition 0.35s ease; /* Apparition (même animation que l'avis de recherche) */
+}
+
+
+/* Titre « Mon profil » */
+.profil-titre {
+  margin: 0; /* Aucune marge */
+  font-family: var(--police-titre); /* Police du titre */
+  font-size: 1.6rem; /* Taille */
+  text-align: center; /* Centré */
+}
+
+
+/* Date d'inscription */
+.profil-date {
+  margin: -0.4rem 0 0.2rem; /* Rapprochée du titre */
+  font-size: 0.8rem; /* Taille */
+  font-style: italic; /* Italique */
+  text-align: center; /* Centrée */
+  opacity: 0.75; /* Estompée */
+}
+
+
+/* Libellé et son champ, l'un sous l'autre */
+.profil-fiche label {
+  display: flex; /* Éléments empilés */
+  flex-direction: column; /* Libellé puis champ */
+  gap: 0.3rem; /* Espace entre le libellé et le champ */
+  font-size: 0.85rem; /* Taille du libellé */
+  font-weight: 600; /* Semi-gras */
+}
+
+
+/* Champs du profil : fond clair sur le parchemin (16 px minimum : pas de zoom automatique sur iPhone) */
+.profil-fiche input {
+  padding: 0.5rem 0.6rem; /* Marge intérieure */
+  border: 1px solid var(--encre); /* Bordure couleur encre */
+  border-radius: 4px; /* Coins arrondis */
+  background: rgba(255, 255, 255, 0.55); /* Fond clair */
+  color: var(--encre); /* Texte couleur encre */
+  font: inherit; /* Police du site */
+  font-size: 16px; /* Taille du texte */
+  font-weight: 400; /* Épaisseur normale */
+}
+
+
+/* Boutons : suppression du compte à gauche, enregistrement à droite */
+.profil-actions {
+  display: flex; /* Boutons alignés */
+  justify-content: space-between; /* Aux deux extrémités */
+  gap: 1rem; /* Espace minimal */
+  margin-top: 0.4rem; /* Espace avant les boutons */
+}
+
+
+/* Messages du profil : couleur encre (lisibles sur le parchemin) */
+.profil-fiche .message {
+  margin: 0; /* Aucune marge */
+  color: var(--encre); /* Couleur encre */
+  font-size: 0.85rem; /* Taille */
+}
+
+
+/* ====================================================================================== */
+
+
 /* ▶ Avis de recherche (clic sur le logo) ==== */
 
 
@@ -1866,6 +1982,19 @@ button, #choix-tri, .filtre summary, .filtre .filtre-options label, .filtre-icon
 
   /* Bouton de suppression d'une note : fond rouge */
   .note-supprimer:hover {
+    background: var(--rouge); /* Fond rouge */
+    color: var(--blanc); /* Texte clair */
+  }
+
+
+  /* Pseudo de l'en-tête (ouvre le profil) : bleu */
+  .bouton-profil:hover {
+    color: var(--bleu-electrique); /* Bleu */
+  }
+
+
+  /* Bouton de création de compte : fond rouge */
+  .bouton-secondaire:hover {
     background: var(--rouge); /* Fond rouge */
     color: var(--blanc); /* Texte clair */
   }
@@ -2082,11 +2211,16 @@ button, #choix-tri, .filtre summary, .filtre .filtre-options label, .filtre-icon
   .en-tete-titre { flex: 1; min-width: 0; } /* Place restante, devise sur deux lignes si besoin */
   .en-tete-utilisateur { order: 1; align-self: flex-start; } /* Déconnexion juste après le titre, à droite, en haut à hauteur de WANTED */
   .en-tete-utilisateur > #bouton-deconnexion { font-size: 0.8rem; } /* Déconnexion plus petite */
-  .en-tete-utilisateur { flex-direction: column; align-items: flex-end; gap: 0; } /* Compteur sous la déconnexion, alignés à droite */
+  .en-tete-utilisateur { flex-direction: column; align-items: flex-end; gap: 0.25rem; } /* Déconnexion, pseudo et compteur empilés, alignés à droite, même espace entre les trois lignes */
+  .en-tete-utilisateur > #bouton-deconnexion, .en-tete-utilisateur > #utilisateur-email, .en-tete-utilisateur > #compteur-cartes { padding: 0; line-height: 1.2; } /* Mêmes marges et même interligne pour les trois lignes (l'espace vient seulement du gap) */
   .en-tete-utilisateur > #compteur-cartes { display: block; font-size: 0.8rem; padding: 0; opacity: 0.7; } /* Cartes collectionnées / total, même taille */
   .onglets { order: 2; flex-basis: 100%; margin: 0; } /* Onglets sur leur propre ligne */
   .onglet { padding: 0.35rem 0.5rem; font-size: 0.8rem; } /* Onglets plus petits : les quatre tiennent sur la ligne */
-  #maj, #utilisateur-email { display: none; } /* Date de mise à jour et email masqués */
+  #maj { display: none; } /* Date de mise à jour masquée */
+  .en-tete-utilisateur > .bouton-profil { font-size: 0.8rem; } /* Pseudo plus petit (toujours cliquable pour ouvrir le profil) */
+  #bouton-deconnexion { order: 1; } /* Ordre dans la colonne de droite : déconnexion, */
+  .bouton-profil { order: 2; } /* puis pseudo ou email, */
+  #compteur-cartes { order: 3; } /* puis cartes collectionnées / total */
   .saut-telephone { display: inline; } /* Devise sur deux lignes, coupée après « Grand Line » */
 
 
