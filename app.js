@@ -22,6 +22,7 @@ const TELEPHONE = matchMedia("(max-width: 700px), (max-height: 500px) and (orien
 const PAGE_PRIMES = "https://onepiece.fandom.com/fr/api.php?action=parse&page=Primes/Avis_de_recherche&prop=text&formatversion=2&format=json&origin=*"; // Page « Primes/Avis de recherche », via l'API du wiki (origin=* : lecture autorisée depuis un autre site)
 const MEMOIRE_PRIMES = "wanted-primes"; // Nom sous lequel le navigateur garde les dernières primes lues (secours si le wiki est indisponible)
 const AVIS_PAR_DEFAUT = "www/wanted_icon.ico"; // Image de l'avis de recherche quand le personnage n'a pas d'avis sur le wiki (logo du site)
+const PERSONNAGE_SANS_PRIME = "Chopper"; // Personnage dont l'avis de recherche s'affiche avec une prime de 0 berry (nom cherché dans les primes du wiki)
 const TAILLE_AVIS_WIKI = 400; // Largeur demandée au wiki pour les images des avis de recherche, en pixels
 const PRIME_DEPART = 1000000; // Prime de départ (première carte), multipliée par un même facteur jusqu'à la prime la plus haute (100 % de la collection)
 const ETAPES_AVIS = 50; // Nombre maximal de personnages affichés avant la prime finale sur l'avis de recherche
@@ -626,7 +627,7 @@ function ouvrirAvis() {
   if (prime === null) return element("avis-montant").textContent = TEXTES.avisSansPrime;
   const paliers = referencesAvecAvis().filter(([, montant]) => montant < prime).sort((a, b) => a[1] - b[1]); // Personnages dont la prime est sous la prime finale, de la plus basse à la plus haute
   const nbEtapes = TELEPHONE.matches || matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : Math.min(ETAPES_AVIS, paliers.length); // Aucune étape sur téléphone ou si les animations sont réduites : prime estimée affichée directement
-  const etapes = [...Array.from({ length: nbEtapes }, (_, i) => paliers[Math.floor(i * paliers.length / nbEtapes)]), prime > 0 ? [referenceProche(prime)[0], prime, referenceProche(prime)[2]] : [null, prime, null]]; // Personnages répartis régulièrement, puis la prime finale
+  const etapes = [...Array.from({ length: nbEtapes }, (_, i) => paliers[Math.floor(i * paliers.length / nbEtapes)]), prime > 0 ? [referenceProche(prime)[0], prime, referenceProche(prime)[2]] : [null, prime, primes.find(([nom]) => nom.includes(PERSONNAGE_SANS_PRIME))?.[2] ?? null]]; // Personnages répartis régulièrement, puis la prime finale
   etapes.forEach(([, , avis]) => { if (avis) new Image().src = avis; }); // Avis de recherche préchargés pour s'afficher sans attente
   const afficherEtape = (i) => {
     const [nom, montant, avis] = etapes[i];
